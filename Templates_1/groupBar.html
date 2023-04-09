@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<style>
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+#chartContainer{
+    border: azure;
+    height: 300px;
+    background: white;
+}
+
+</style>
+</head>
+<body>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+
+    <div id="chartContainer">
+            <div id="chart1"></div>
+    </div>
+<script>
+    
+var data = [
+  {
+    key: "Referral",
+    values: [{x: "Jan",y: 90},{x: "Feb",y: 80},{x: "Mar",y: 70},{x: "Apr",y: 60},{x: "May",y: 80},{x: "Jun",y: 90},{x: "Jul",y: 95},{x: "Aug",y: 60},{x: "Sep",y: 50},{x: "Oct",y: 60},{x: "Nov",y: 70},{x: "Dec",y: 85}]
+  },{
+    key: "Payments",
+     values: [{x: "Jan",y: 60},{x: "Feb",y: 30},{x: "Mar",y: 70},{x: "Apr",y: 80},{x: "May",y: 20},{x: "Jun",y: 40},{x: "Jul",y: 15},{x: "Aug",y: 60},{x: "Sep",y: 50},{x: "Oct",y: 70},{x: "Nov",y: 50},{x: "Dec",y: 65}]
+  },{
+    key: "Adjustments",
+    values: [{x: "Jan",y: 10},{x: "Feb",y: 20},{x: "Mar",y: 20},{x: "Apr",y: 30},{x: "May",y: 50},{x: "Jun",y: 60},{x: "Jul",y: 15},{x: "Aug",y: 40},{x: "Sep",y: 30},{x: "Oct",y: 20},{x: "Nov",y: 40},{x: "Dec",y: 25}]
+  },{
+    key: "Write-off",
+     values: [{x: "Jan",y: 12},{x: "Feb",y: 14},{x: "Mar",y: 16},{x: "Apr",y: 12},{x: "May",y: 30},{x: "Jun",y: 22},{x: "Jul",y: 25},{x: "Aug",y: 40},{x: "Sep",y: 30},{x: "Oct",y: 20},{x: "Nov",y: 30},{x: "Dec",y: 15}]
+  }];
+
+function groupBarChar(config, data) {
+
+    var elementId = config.chartSetting.elementId;
+
+        var height = config.chartSetting.height
+        var width = config.chartSetting.width
+
+        var margin = config.chartSetting.margin,top = margin.top,right = margin.right,bottom = margin.bottom,left = margin.left,
+                width = width - left - right,
+                height = height - top - bottom,
+                colorArray = config.chartSetting.colorArray;
+       var chartSetting_cols = config.chartSetting.columns;
+ 
+        var groupSpacing = 2;
+
+            //data.forEach()
+            
+        var x0 = d3.scale.ordinal().rangeRoundBands([0, width]);
+
+        var x1 = d3.scale.ordinal();
+
+        var y = d3.scale.linear().domain([0,150]).range([height, 0]);
+
+        var color = d3.scale.ordinal().range(colorArray);
+
+        var xAxis = d3.svg.axis().scale(x0).orient("bottom");
+
+        var yAxis = d3.svg.axis().scale(y).orient("left").ticks(4).tickFormat(function (d) {return d + '%';});
+    
+        var svg = d3.select("#"+elementId).append("svg").attr("viewBox", "0 0 "+(width + left + right)+' '+(height + top + bottom)).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
+
+        svg.append("g").attr("class", "y axis").call(yAxis);
+      
+      var elementId = config.chartSetting.elementId;
+ 
+  var barData = data.filter(function(d1) { return !d1.disabled; });
+  var allLegends = data.map(function(d){return d.key});
+  var currentBarSeries = barData.map(function(d){return d.key});
+  var plainXY = d3.merge(barData.map(function(d){return d.values}));
+  var xArray = plainXY.map(function(d){return d.x});
+
+  barData.forEach(function(d){
+    d.values.forEach(function (o){
+          o.key = d.key
+     })
+  });
+  
+  x0.domain(d3.set(xArray).values());
+  x1.domain(currentBarSeries).rangeRoundBands([0, x0.rangeBand()]);
+  y.domain([d3.min(plainXY, function(d) { 
+      var dy
+      if(d.y>0){
+          
+       dy = 0;
+      }else{
+          
+        dy= d.y 
+      }
+        return dy; }), d3.max(plainXY, function(d) { return d.y; })]);
+  color.domain(allLegends);
+  
+  d3.transition(svg).select(".y.axis").call(yAxis);   
+  d3.transition(svg).select(".x.axis").call(xAxis);
+
+  var wrap = svg.selectAll('g.stm-d3-wrap.stm-d3-multibar').data([barData]);
+  var wrapEnter = wrap.enter().append('g').attr('class', 'stm-d3-wrap stm-d3-multibar')
+  var gEnter = wrapEnter.append('g');
+  var g = wrap.select('g')
+  gEnter.append('g').attr('class', 'stm-d3-groups');
+
+  var groups = wrap.select('.stm-d3-groups').selectAll('.stm-d3-group').data(function(d) {return d;}, function(d,i) {return i;});
+  groups.enter().append('g').style('stroke-opacity', 1e-6).style('fill-opacity', 1e-6);
+
+  groups.exit().transition().selectAll('rect.stm-d3-bar').delay(function(d,i) {if(barData.length>0)return i * 1200/ barData[0].values.length;else return 100;}).attr('x', function(d) { return x1(0) }).attr('height', 0).remove();
+
+  groups.attr('class', function(d,i) {return 'stm-d3-group stm-d3-series-' + i;}).style('fill', function(d,i){ return color(d.key)}).style('stroke', function(d,i){ return color(d.key)});
+  
+  groups.transition().style('stroke-opacity', 1).style('fill-opacity', .75);
+  groups.attr('class', function(d,i) { return 'stm-d3-group stm-d3-series-' + i });
+
+  var bars = groups.selectAll("rect.stm-d3-bar").data(function(d) {return d.values;});
+
+  bars.exit().remove();
+
+  var barsEnter = bars.enter().append('rect').attr('class', 'stm-d3-bar')
+  .attr('x', function(d,i,j) {return (j * x1.rangeBand() );})
+  .attr('y', function(d) { return y(Math.max(0, d.y)) })
+  .attr('height', function(d) { return Math.abs(y(d.y) - y(0)); })
+  .attr('width', x0.rangeBand() / barData.length - groupSpacing )
+  .attr('transform', function(d,i) { return 'translate(' + x0(d.x) + ',0)'; }).style("fill", function(d, i, j) { return color(data[j].key); });
+
+  var barsUpdate = d3.transition(bars);
+  barsUpdate.select("rect").attr("height", function(d) { return height - y(d.y); });
+
+  function fade(t, a) {
+        bars.filter(function(t) {
+            return t.key != a.key
+        }).style("opacity", t)
+    }
+
+  bars
+      .attr('x', function(d,i,j) {return (j * x1.rangeBand() );})
+      .attr('width', x0.rangeBand() / barData.length - groupSpacing)
+      .attr('y', function(d,i) {return y(Math.max(0, d.y)) - 2;})
+      .attr('height', function(d,i) {return Math.abs(y(d.y) - y(0));})
+      .attr("fill", function(d, i, j) { return color(barData[j].key); })
+      .attr("stroke", function(d, i, j) { return d3.rgb(color(barData[j].key)).darker(); })
+      .attr('transform', function(d,i) { return 'translate(' + x0(d.x) + ',0)';});
+     
+ 
+   var legend = svg.selectAll(".legend")
+      .data(data)
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate("+ i*150 +"," + (-40) + ")"; });
+
+  legend.append("rect")
+      .attr("x", width/4)
+      .attr("width", 36)
+      .attr("height", 18)
+      .attr("rx", 4.5)  
+      .attr("fill", function(d, i) { 
+        return color(d.key); 
+      }).attr("stroke", function(d, i) { 
+        return d3.rgb(color(d.key)).darker(); 
+      }).on("mouseover", function(t) { return fade(.1, t) })
+      .on("mouseout", function(t) { return fade(1, t) });
+
+  legend.append("text")
+      .attr("y", 15)
+        .attr("x", width/4.08)
+      .style("text-anchor", "end")
+      .text(function(d) { return d.key;});
+   
+      
+$('rect.stm-d3-bar').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return "type :"+d.key+' <br/> Month :'+d.x+' <br/> '+d.y+'%'
+        }
+     });
+
+}
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 56,
+            right: 20,
+            bottom: 25,
+            left: 50
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+       columns : ["Referral", "Payments","Adjustments","Write-off"],
+    }
+    
+}    
+groupBarChar(config, data);
+    
+    
+</script>
+</body>

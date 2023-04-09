@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<style>
+body {
+  font: 10px sans-serif;
+}
+</style>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+</head>
+<body>
+
+<div id="chartContainer">
+    <div id="chart1"></div>
+</div>
+
+<script>
+var data = [
+  {
+    "id": "FIS",
+    "order": 1.1,
+    "score": 33,
+    "weight": 0.25,
+    "color": "#a6cee3",
+    "label": "Fisheries"
+  },
+  {
+    "id": "MAR",
+    "order": 1.3,
+    "score": 80,
+    "weight": 0.5,
+    "color": "#1f78b4",
+    "label": "Mariculture"
+  },
+  {
+    "id": "AO",
+    "order": 2,
+    "score": 100,
+    "weight": 1,
+    "color": "#b2df8a",
+    "label": "Artisanal Fishing Opportunities"
+  },
+  {
+    "id": "NP",
+    "order": 3,
+    "score": 76,
+    "weight": 1,
+    "color": "#33a02c",
+    "label": "Natural Products"
+  },
+  {
+    "id": "CS",
+    "order": 4,
+    "score": 48,
+    "weight": 0.25,
+    "color": "#fb9a99",
+    "label": "Carbon Storage"
+  },
+  {
+    "id": "CP",
+    "order": 5,
+    "score": 26,
+    "weight": 0.5,
+    "color": "#e31a1c",
+    "label": "Coastal Protection"
+  },
+  {
+    "id": "TR",
+    "order": 6,
+    "score": 10,
+    "weight": 1,
+    "color": "#fdbf6f",
+    "label": "Tourism &  Recreation"
+  },
+  {
+    "id": "LIV",
+    "order": 7.1,
+    "score": 20,
+    "weight": 0.5,
+    "color": "#ff7f00",
+    "label": "Livelihoods"
+  },
+  {
+    "id": "ECO",
+    "order": 7.3,
+    "score": 84,
+    "weight": 0.5,
+    "color": "#cab2d6",
+    "label": "Economies"
+  },
+  {
+    "id": "ICO",
+    "order": 8.1,
+    "score": 38,
+    "weight": 0.25,
+    "color": "#6a3d9a",
+    "label": "Iconic Species"
+  },
+  {
+    "id": "LSP",
+    "order": 8.3,
+    "score": 24,
+    "weight": 0.5,
+    "color": "#ffff99",
+    "label": "Lasting Special Places"
+  },
+  {
+    "id": "CW",
+    "order": 9,
+    "score": 12,
+    "weight": 1,
+    "color": "#b15928",
+    "label": "Clean Waters"
+  },
+  {
+    "id": "HAB",
+    "order": 10.1,
+    "score": 64,
+    "weight": 0.5,
+    "color": "#4776B4",
+    "label": "Habitats"
+  },
+  {
+    "id": "SPP",
+    "order": 10.3,
+    "score": 31,
+    "weight": 0.25,
+    "color": "#5E4EA1",
+    "label": "Species"
+  }
+];
+
+function asterPlotChart(config, data) {
+
+ var elementId = config.chartSetting.elementId;
+ 
+var margin = config.chartSetting.margin
+        width = config.chartSetting.width - margin.left - margin.right,
+        height = config.chartSetting.height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;
+
+var svg = d3.select("#" + elementId).append("svg")
+              .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+              .append("g")
+              .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+var radius = Math.min(width, height) / 2,
+    innerRadius = 0.3 * radius;
+
+var pie = d3.layout.pie()
+    .sort(null)
+    .value(function(d) { return d.width; });
+
+var arc = d3.svg.arc()
+  .innerRadius(innerRadius)
+  .outerRadius(function (d) { 
+    return (radius - innerRadius) * (d.data.score / 100.0) + innerRadius; 
+  });
+
+var outlineArc = d3.svg.arc()
+        .innerRadius(innerRadius)
+        .outerRadius(radius);
+
+
+  data.forEach(function(d) {
+    d.id     =  d.id;
+    d.order  = +d.order;
+    d.color  =  d.color;
+    d.weight = +d.weight;
+    d.score  = +d.score;
+    d.width  = +d.weight;
+    d.label  =  d.label;
+  });
+  
+  var path = svg.selectAll(".solidArc")
+      .data(pie(data))
+    .enter().append("path")
+      .attr("fill", function(d) { return d.data.color; })
+      .attr("class", "solidArc")
+      .attr("stroke", "gray")
+      .attr("d", arc);
+
+  $('.solidArc').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__; 
+          return  d.data.label + "<br/> score : " + d.data.score + "<br/> value : " + d.value ;
+        }
+     });
+
+  var outerPath = svg.selectAll(".outlineArc")
+      .data(pie(data))
+    .enter().append("path")
+      .attr("fill", "none")
+      .attr("stroke", "gray")
+      .attr("class", "outlineArc")
+      .attr("d", outlineArc);  
+
+  // calculate the weighted mean score
+  var score = 
+    data.reduce(function(a, b) {
+      return a + (b.score * b.weight); 
+    }, 0) / 
+    data.reduce(function(a, b) { 
+      return a + b.weight; 
+    }, 0);
+
+  svg.append("svg:text")
+    .attr("class", "aster-score")
+    .attr("dy", ".35em")
+    .attr("font-size", "25px")
+    .attr("text-anchor", "middle") // text-align: right
+    .text(Math.round(score));
+
+}
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+    }
+    
+}    
+asterPlotChart(config, data);
+
+</script>
+</body>
+</html>
+

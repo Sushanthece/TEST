@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html class="ocks-org do-not-copy">
+<meta charset="utf-8">
+<head>
+<title>Uber Rides by Neighborhood</title>
+<style>
+#circle circle {
+  fill: none;
+  pointer-events: all;
+}
+
+.group path {
+  fill-opacity: .5;
+}
+
+path.chord {
+  stroke: #000;
+  stroke-width: .25px;
+}
+
+#circle:hover path.fade {
+  display: none;
+}
+
+</style>
+</head>
+<body>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<script type="text/javascript" src="js/queue.v1.min.js"></script>
+
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+<div id="chartContainer">
+    <div id="chart1"></div>
+</div>
+<script>
+
+function chordChar(config, data){
+
+var elementId = config.chartSetting.elementId;
+     
+var width = 960,
+    height = 425,
+    outerRadius = Math.min(width, height) / 2 - 10,
+    innerRadius = outerRadius - 10;
+
+var formatPercent = d3.format(".1%");
+
+var arc = d3.svg.arc()
+    .innerRadius(innerRadius)
+    .outerRadius(outerRadius);
+
+var layout = d3.layout.chord()
+    .padding(.04)
+    .sortSubgroups(d3.descending)
+    .sortChords(d3.ascending);
+
+var path = d3.svg.chord()
+    .radius(innerRadius);
+
+var svg = d3.select("#" + elementId).append("svg")
+     .attr("viewBox", "0 0 "+width+" "+height)
+  .append("g")
+    .attr("id", "circle")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+svg.append("circle")
+    .attr("r", outerRadius);
+
+queue()
+    .defer(d3.csv, "data/cities.csv")
+    .defer(d3.json, "data/matrix.json")
+    .await(ready);
+
+function ready(error, cities, matrix) {
+  if (error) throw error;
+
+  // Compute the chord layout.
+  layout.matrix(matrix);
+
+  // Add a group per neighborhood.
+  var group = svg.selectAll(".group")
+      .data(layout.groups)
+    .enter().append("g")
+      .attr("class", "group")
+      .on("mouseover", mouseover);
+
+  $('.group').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return cities[d.index].name + ": " + formatPercent(d.value) + " of origins";
+        }
+     });
+ 
+  // Add the group arc.
+  var groupPath = group.append("path")
+      .attr("id", function(d, i) { return "group" + i; })
+      .attr("d", arc)
+      .style("fill", function(d, i) { return cities[i].color; });
+
+  // Add a text label.
+  var groupText = group.append("text")
+      .attr("x", 3)
+      .attr("dy", 9);
+
+  groupText.append("textPath")
+      .attr("xlink:href", function(d, i) { return "#group" + i; })
+      .attr("font-size", function(d, i) { return "10px"; })
+      .text(function(d, i) { return cities[i].name; });
+
+  // Remove the labels that don't fit. :(
+  groupText.filter(function(d, i) { return groupPath[0][i].getTotalLength() / 2 -12 < this.getComputedTextLength(); })
+      .remove();
+
+  // Add the chords.
+  var chord = svg.selectAll(".chord")
+      .data(layout.chords)
+    .enter().append("path")
+      .attr("class", "chord")
+      .style("fill", function(d) { return cities[d.source.index].color; })
+      .attr("d", path);
+
+  $('.chord').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return cities[d.source.index].name
+        + " → " + cities[d.target.index].name
+        + ": " + formatPercent(d.source.value)
+        + "<br/>" + cities[d.target.index].name
+        + " → " + cities[d.source.index].name
+        + ": " + formatPercent(d.target.value);
+        }
+     });
+
+  function mouseover(d, i) {
+    chord.classed("fade", function(p) {
+      return p.source.index != i
+          && p.target.index != i;
+    });
+  }
+}
+}
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 20,
+            right: 20,
+            bottom: 20,
+            left: 20
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+    }
+    
+}
+
+chordChar(config, 'sample');
+
+</script>
+</body>
+</html>

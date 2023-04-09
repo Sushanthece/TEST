@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Cartogram</title>
+<style>
+.land {
+  stroke: #ccc;
+}
+
+.state {
+  stroke: #666;
+}
+</style>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<script type="text/javascript" src="js/topojson.v1.min.js"></script>
+<script type="text/javascript" src="js/jquery.multiple.select.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+<link rel="stylesheet" type="text/css" media="screen" href="css/multiple-select.css">
+</head>
+<body>
+<div id="chartContainer">
+    <label value="visit_type">Visit Type : </label>
+    <select id="visit_type" class="select_vals"></select>&nbsp;&nbsp;
+    <input type="button" value="submit" class="headerview"></input>
+    <div id="chart1"></div>
+</div>
+<script>
+
+    var sampleData ={};  
+    ["HI", "AK", "FL", "SC", "GA", "AL", "NC", "TN", "RI", "CT", "MA",
+    "ME", "NH", "VT", "NY", "NJ", "PA", "DE", "MD", "WV", "KY", "OH", 
+    "MI", "WY", "MT", "ID", "WA", "DC", "TX", "CA", "AZ", "NV", "UT", 
+    "CO", "NM", "OR", "ND", "SD", "NE", "IA", "MS", "IN", "IL", "MN", 
+    "WI", "MO", "AR", "OK", "KS", "LS", "VA"].forEach(function(d){ 
+            var low=Math.round(100*Math.random()), 
+                mid=Math.round(100*Math.random()), 
+                high=Math.round(100*Math.random());
+                sampleData[d]={low:d3.min([low,mid,high]), high:d3.max([low,mid,high]), 
+                avg:Math.round((low+mid+high)/3), color:d3.interpolate("#ffffcc", "#800026")(low/100)}; 
+        });
+
+id_mapper = ["Virginia","California","Illinois","Texas","Arizona","Florida","New York","Washington","Nevada","Michigan","Pennsylvania","Massachusetts","Ohio","Minnesota","Utah","Maryland","Georgia","Missouri","North Carolina","Hawai","Wisconsin","Connecticut","Tennessee","Indiana","New Jersey","Oregon","Kentucky","Oklahoma","New Mexico","Alabama","Colorado","District of Columbia","Rhode Island","Kansas","Delaware","Nebraska","South Carolina","Iowa","Louisiana","Idaho","New Hampshire","Arkansas","Alaska","Maine","Mississippi","West Virginia","South Dakota","North Dakota","Vermont","Montana","Wyoming"];
+
+ var select_box = d3.select('#visit_type')
+                .selectAll("option")
+                    .data(id_mapper)
+                    .enter().append("option")
+                    .attr("value", function (d){ return d; })
+                    .attr("class","name")
+                    .attr("selected","")
+                    .text(function (d){ return d; });
+
+function cartogramUSStateChar(config, data,state_names){
+
+    var elementId = config.chartSetting.elementId;
+
+    var height = config.chartSetting.height
+    var width = config.chartSetting.width
+
+var margin = config.chartSetting.margin;
+var width = width - margin.left - margin.right;
+var height = height - margin.top - margin.bottom;
+
+var colorArray = config.chartSetting.colorArray;
+
+var path = d3.geo.path()
+
+var projection = d3.geo.mercator();
+
+d3.select("#" + elementId).select('svg').remove();
+
+var svg = d3.select("#" + elementId).append("svg")
+     .attr("width", "100%")
+     .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+d3.csv("data/county.csv", function(error, county) {
+
+d3.json("data/us.json", function(error, us) {
+
+    if (error) throw error;
+    var centered;
+     /*svg.append("rect")
+            .attr("class", "background")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("fill",'none')
+            .attr("pointer-events",'all')
+            .on("click", clicked)
+*/
+  county.forEach(function(m){
+    m.population = parseInt(m.population)
+  });
+  
+
+var color = d3.scale.linear().range(["#ff0000", "#ffff00","#00ff00"])
+    .domain([d3.min(county, function (d) { return d.population })*.9,(d3.min(county, function (d) { return d.population })+d3.max(county, function (d) { return d.population }))/2,d3.max(county, function (d) { return d.population })*1.1])
+
+
+  var g = svg.append("g");
+
+  county.forEach(function(m){
+    us.objects.counties.geometries.forEach(function(d) {      
+          if (m.county_id==d.id){
+              d.properties = {}
+              d.properties['state_name'] = m.state
+              d.properties['population_1'] = m.population
+              d.properties['county_name'] = m.county_name
+           }  
+     });
+  });
+  
+  var group = us.objects.counties
+
+var states_group  = us.objects.counties.geometries.filter(function(r) {
+       if (r.properties!=undefined){
+      return r.properties.state_name == state_names
+   }
+});
+  
+  state_json = {}
+  state_json['bbox'] = group.bbox
+  state_json['type'] = "GeometryCollection"
+  state_json['geometries'] = states_group
+
+  g.selectAll(".state")
+      .data(topojson.feature(us, state_json).features)
+    .enter().append("path")
+      .attr("class", "state")
+      .attr("d", path)
+     .attr("fill", function(d) {  return color(d.properties.population_1); })
+      .style("stroke-width", 1 )
+     .on("click", clicked);
+    
+      function addThousandsSeparator(t){
+          var a=t;if(parseFloat(t)){t=new String(t);var e=t.split(".");e[0]=e[0].split("").reverse().join("").replace(/(\d{3})(?!$)/g,"$1,").split("").reverse().join(""),a=e.join(".")}
+           return a
+      }
+
+function clicked(d) {
+          
+          var x, y, k;
+          if (d && centered !== d) {
+            var centroid = path.centroid(d);
+            x = centroid[0];
+            y = centroid[1];
+            k = 5;
+            centered = d;
+          } else {
+            x = width / 2;
+            y = height / 2;
+            k = 1;
+            centered = null;
+          }
+
+          g.selectAll("path")
+              .classed("active", centered && function(d) { return d === centered; });
+
+          g.transition()
+              .duration(750)
+              .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + Math.sqrt(k) + ")translate(" + -x + "," + -y + ")")
+              .style("stroke-width", 1.5 / k + "px");
+
+}
+
+clicked(topojson.feature(us, state_json).features[parseInt(topojson.feature(us, state_json).features.length/2)]);
+
+$('.state').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return "State : "+d.properties.state_name+"<br/> County : "+d.properties.county_name+'   <br/> Population : '+addThousandsSeparator(d.properties.population_1);
+        }
+});
+
+});
+});
+
+}
+ $('#visit_type').on('change', function() {
+  cartogramUSStateChar(config,'hai',$('#visit_type').val());
+}) 
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 1200,
+        height : 540,
+        margin : { 
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],       
+    }
+}
+
+cartogramUSStateChar(config,'hai',$('#visit_type').val());
+
+</script>
+</body>
+</html>

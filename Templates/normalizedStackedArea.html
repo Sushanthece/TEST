@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.browser text {
+  text-anchor: end;
+}
+
+</style>
+<body>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+    <div id="chartContainer">
+            <div id="chart1"></div>
+    </div>
+<script>
+
+
+data = [
+   {
+      "date": "2015-Jun-15",
+      "Google Chrome": 31.09,
+      "Internet Explorer": 24.14,
+      "Firefox": 18.82,
+      "Safari": 7.46,
+      "Microsoft Edge": 0.03,
+      "Opera": 1.32,
+      "Mozilla": 0.12,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-16",
+      "Google Chrome": 31,
+      "Internet Explorer": 24.19,
+      "Firefox": 18.96,
+      "Safari": 7.36,
+      "Microsoft Edge": 0.03,
+      "Opera": 1.32,
+      "Mozilla": 0.12,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-17",
+      "Google Chrome": 38.87,
+      "Internet Explorer": 24.44,
+      "Firefox": 18.91,
+      "Safari": 7.27,
+      "Microsoft Edge": 0.03,
+      "Opera": 1.36,
+      "Mozilla": 0.12,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-18",
+      "Google Chrome": 31.22,
+      "Internet Explorer": 23.83,
+      "Firefox": 19.16,
+      "Safari": 7.24,
+      "Microsoft Edge": 0.04,
+      "Opera": 1.39,
+      "Mozilla": 0.12,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-19",
+      "Google Chrome": 38.91,
+      "Internet Explorer": 23.86,
+      "Firefox": 19.35,
+      "Safari": 7.31,
+      "Microsoft Edge": 0.04,
+      "Opera": 1.41,
+      "Mozilla": 0.12,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-20",
+      "Google Chrome": 31.78,
+      "Internet Explorer": 21.14,
+      "Firefox": 19.66,
+      "Safari": 8.42,
+      "Microsoft Edge": 0.05,
+      "Opera": 1.83,
+      "Mozilla": 0.1,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-21",
+      "Google Chrome": 29.43,
+      "Internet Explorer": 20.55,
+      "Firefox": 19.42,
+      "Safari": 8.66,
+      "Microsoft Edge": 0.05,
+      "Opera": 1.75,
+      "Mozilla": 0.12,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-22",
+      "Google Chrome": 31.98,
+      "Internet Explorer": 23.38,
+      "Firefox": 18.84,
+      "Safari": 7.25,
+      "Microsoft Edge": 0.04,
+      "Opera": 1.28,
+      "Mozilla": 0.12,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-23",
+      "Google Chrome": 31.69,
+      "Internet Explorer": 23.76,
+      "Firefox": 18.89,
+      "Safari": 7.22,
+      "Microsoft Edge": 0.04,
+      "Opera": 1.27,
+      "Mozilla": 0.11,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-24",
+      "Google Chrome": 29.17,
+      "Internet Explorer": 23.35,
+      "Firefox": 18.91,
+      "Safari": 7.09,
+      "Microsoft Edge": 0.04,
+      "Opera": 1.32,
+      "Mozilla": 0.12,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-25",
+      "Google Chrome": 29.32,
+      "Internet Explorer": 23.39,
+      "Firefox": 18.76,
+      "Safari": 7.03,
+      "Microsoft Edge": 0.04,
+      "Opera": 1.34,
+      "Mozilla": 0.11,
+      "Other/Unknown": "0"
+   },
+   {
+      "date": "2015-Jun-26",
+      "Google Chrome": 29.39,
+      "Internet Explorer": 23.11,
+      "Firefox": 18.84,
+      "Safari": 7.14,
+      "Microsoft Edge": 0.04,
+      "Opera": 1.37,
+      "Mozilla": 0.1,
+      "Other/Unknown": "0"
+   },
+   {
+      "date": "2015-Jun-27",
+      "Google Chrome": 29.77,
+      "Internet Explorer": 20.68,
+      "Firefox": 19.23,
+      "Safari": 8.46,
+      "Microsoft Edge": 0.05,
+      "Opera": 1.71,
+      "Mozilla": 0.09,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-28",
+      "Google Chrome": 36.07,
+      "Internet Explorer": 20.41,
+      "Firefox": 18.91,
+      "Safari": 8.77,
+      "Microsoft Edge": 0.05,
+      "Opera": 1.69,
+      "Mozilla": 0.1,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-29",
+      "Google Chrome": 29.32,
+      "Internet Explorer": 23.3,
+      "Firefox": 18.54,
+      "Safari": 7.4,
+      "Microsoft Edge": 0.04,
+      "Opera": 1.27,
+      "Mozilla": 0.11,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jun-30",
+      "Google Chrome": 29.99,
+      "Internet Explorer": 22.94,
+      "Firefox": 18.45,
+      "Safari": 7.07,
+      "Microsoft Edge": 0.07,
+      "Opera": 1.32,
+      "Mozilla": 0.13,
+      "Other/Unknown": 0.02
+   },
+   {
+      "date": "2015-Jul-1",
+      "Google Chrome": 36.22,
+      "Internet Explorer": 22.79,
+      "Firefox": 18.46,
+      "Safari": 6.95,
+      "Microsoft Edge": 0.07,
+      "Opera": 1.37,
+      "Mozilla": 0.12,
+      "Other/Unknown": 0.02
+   },
+   {
+      "date": "2015-Jul-2",
+      "Google Chrome": 36.33,
+      "Internet Explorer": 22.59,
+      "Firefox": 18.74,
+      "Safari": 6.69,
+      "Microsoft Edge": 0.07,
+      "Opera": 1.45,
+      "Mozilla": 0.12,
+      "Other/Unknown": 0.02
+   },
+   {
+      "date": "2015-Jul-3",
+      "Google Chrome": 36.4,
+      "Internet Explorer": 21.29,
+      "Firefox": 19.28,
+      "Safari": 7.28,
+      "Microsoft Edge": 0.08,
+      "Opera": 1.54,
+      "Mozilla": 0.11,
+      "Other/Unknown": 0.02
+   },
+   {
+      "date": "2015-Jul-4",
+      "Google Chrome": 36.83,
+      "Internet Explorer": 20.02,
+      "Firefox": 19.12,
+      "Safari": 7.99,
+      "Microsoft Edge": 0.08,
+      "Opera": 1.82,
+      "Mozilla": 0.11,
+      "Other/Unknown": 0.02
+   },
+   {
+      "date": "2015-Jul-5",
+      "Google Chrome": 27.6,
+      "Internet Explorer": 19.6,
+      "Firefox": 18.43,
+      "Safari": 8.58,
+      "Microsoft Edge": 0.07,
+      "Opera": 1.62,
+      "Mozilla": 0.1,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-6",
+      "Google Chrome": 36.8,
+      "Internet Explorer": 22.64,
+      "Firefox": 18.04,
+      "Safari": 7.33,
+      "Microsoft Edge": 0.07,
+      "Opera": 1.27,
+      "Mozilla": 0.11,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-7",
+      "Google Chrome": 36.01,
+      "Internet Explorer": 23.02,
+      "Firefox": 18.32,
+      "Safari": 7.25,
+      "Microsoft Edge": 0.07,
+      "Opera": 1.25,
+      "Mozilla": 0.06,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-8",
+      "Google Chrome": 29.19,
+      "Internet Explorer": 23.17,
+      "Firefox": 18.55,
+      "Safari": 7.31,
+      "Microsoft Edge": 0.07,
+      "Opera": 1.32,
+      "Mozilla": 0.05,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-9",
+      "Google Chrome": 29.31,
+      "Internet Explorer": 23.24,
+      "Firefox": 18.7,
+      "Safari": 7.22,
+      "Microsoft Edge": 0.08,
+      "Opera": 1.39,
+      "Mozilla": 0.05,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-10",
+      "Google Chrome": 31.4,
+      "Internet Explorer": 23.68,
+      "Firefox": 18.97,
+      "Safari": 7.37,
+      "Microsoft Edge": 0.09,
+      "Opera": 1.43,
+      "Mozilla": 0.05,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-11",
+      "Google Chrome": 31.87,
+      "Internet Explorer": 21.22,
+      "Firefox": 19.33,
+      "Safari": 8.65,
+      "Microsoft Edge": 0.1,
+      "Opera": 1.76,
+      "Mozilla": 0.06,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-12",
+      "Google Chrome": 29.4,
+      "Internet Explorer": 20.87,
+      "Firefox": 18.84,
+      "Safari": 8.99,
+      "Microsoft Edge": 0.09,
+      "Opera": 1.73,
+      "Mozilla": 0.07,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-13",
+      "Google Chrome": 29.12,
+      "Internet Explorer": 23.35,
+      "Firefox": 18.29,
+      "Safari": 7.27,
+      "Microsoft Edge": 0.07,
+      "Opera": 1.39,
+      "Mozilla": 0.05,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-14",
+      "Google Chrome": 29.36,
+      "Internet Explorer": 23.2,
+      "Firefox": 18.31,
+      "Safari": 7.31,
+      "Microsoft Edge": 0.08,
+      "Opera": 1.35,
+      "Mozilla": 0.05,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-15",
+      "Google Chrome": 31.88,
+      "Internet Explorer": 23.73,
+      "Firefox": 18.46,
+      "Safari": 7.44,
+      "Microsoft Edge": 0.09,
+      "Opera": 1.34,
+      "Mozilla": 0.05,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-16",
+      "Google Chrome": 31.76,
+      "Internet Explorer": 23.77,
+      "Firefox": 18.5,
+      "Safari": 7.43,
+      "Microsoft Edge": 0.09,
+      "Opera": 1.4,
+      "Mozilla": 0.05,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-17",
+      "Google Chrome": 38.58,
+      "Internet Explorer": 24.54,
+      "Firefox": 18.76,
+      "Safari": 7.8,
+      "Microsoft Edge": 0.09,
+      "Opera": 1.43,
+      "Mozilla": 0.06,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-18",
+      "Google Chrome": 31.06,
+      "Internet Explorer": 21.89,
+      "Firefox": 19.14,
+      "Safari": 8.99,
+      "Microsoft Edge": 0.11,
+      "Opera": 1.74,
+      "Mozilla": 0.07,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-19",
+      "Google Chrome": 31.39,
+      "Internet Explorer": 21.5,
+      "Firefox": 19,
+      "Safari": 9.23,
+      "Microsoft Edge": 0.11,
+      "Opera": 1.7,
+      "Mozilla": 0.07,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-20",
+      "Google Chrome": 31.32,
+      "Internet Explorer": 23.38,
+      "Firefox": 18.62,
+      "Safari": 7.68,
+      "Microsoft Edge": 0.09,
+      "Opera": 1.32,
+      "Mozilla": 0.06,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-21",
+      "Google Chrome": 38.81,
+      "Internet Explorer": 24.43,
+      "Firefox": 18.34,
+      "Safari": 7.19,
+      "Microsoft Edge": 0.08,
+      "Opera": 1.2,
+      "Mozilla": 0.06,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-22",
+      "Google Chrome": 31.28,
+      "Internet Explorer": 24.4,
+      "Firefox": 18.45,
+      "Safari": 7.44,
+      "Microsoft Edge": 0.08,
+      "Opera": 1.29,
+      "Mozilla": 0.06,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-23",
+      "Google Chrome": 31.41,
+      "Internet Explorer": 24.2,
+      "Firefox": 18.57,
+      "Safari": 7.35,
+      "Microsoft Edge": 0.08,
+      "Opera": 1.31,
+      "Mozilla": 0.07,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-24",
+      "Google Chrome": 31.22,
+      "Internet Explorer": 23.96,
+      "Firefox": 18.67,
+      "Safari": 7.55,
+      "Microsoft Edge": 0.1,
+      "Opera": 1.42,
+      "Mozilla": 0.06,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-25",
+      "Google Chrome": 31.11,
+      "Internet Explorer": 21.86,
+      "Firefox": 19.28,
+      "Safari": 8.88,
+      "Microsoft Edge": 0.1,
+      "Opera": 1.65,
+      "Mozilla": 0.08,
+      "Other/Unknown": 0.02
+   },
+   {
+      "date": "2015-Jul-26",
+      "Google Chrome": 31.27,
+      "Internet Explorer": 21.57,
+      "Firefox": 19,
+      "Safari": 9.38,
+      "Microsoft Edge": 0.11,
+      "Opera": 1.59,
+      "Mozilla": 0.08,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-27",
+      "Google Chrome": 31.5,
+      "Internet Explorer": 23.72,
+      "Firefox": 18.59,
+      "Safari": 7.76,
+      "Microsoft Edge": 0.1,
+      "Opera": 1.27,
+      "Mozilla": 0.06,
+      "Other/Unknown": 0.01
+   },
+   {
+      "date": "2015-Jul-28",
+      "Google Chrome": 31.31,
+      "Internet Explorer": 23.95,
+      "Firefox": 18.46,
+      "Safari": 7.61,
+      "Microsoft Edge": 0.12,
+      "Opera": 1.31,
+      "Mozilla": 0.07,
+      "Other/Unknown": 0.02
+   },
+   {
+      "date": "2015-Jul-29",
+      "Google Chrome": 31.33,
+      "Internet Explorer": 23.77,
+      "Firefox": 18.56,
+      "Safari": 7.27,
+      "Microsoft Edge": 0.42,
+      "Opera": 1.33,
+      "Mozilla": 0.06,
+      "Other/Unknown": 0.02
+   },
+   {
+      "date": "2015-Jul-30",
+      "Google Chrome": 38.8,
+      "Internet Explorer": 24.06,
+      "Firefox": 18.6,
+      "Safari": 7.46,
+      "Microsoft Edge": 0.7,
+      "Opera": 1.3,
+      "Mozilla": 0.07,
+      "Other/Unknown": 0.02
+   },
+   {
+      "date": "2015-Jul-31",
+      "Google Chrome": 31.41,
+      "Internet Explorer": 22.9,
+      "Firefox": 18.88,
+      "Safari": 7.31,
+      "Microsoft Edge": 0.84,
+      "Opera": 1.41,
+      "Mozilla": 0.07,
+      "Other/Unknown": 0.01
+   }
+]
+
+function normalizedStackedAreaChart(config, data){
+
+var elementId = config.chartSetting.elementId;
+
+var margin = config.chartSetting.margin
+    width = config.chartSetting.width - margin.left - margin.right,
+    height = config.chartSetting.height - margin.top - margin.bottom,
+    colorArray = config.chartSetting.colorArray;
+
+
+var parseDate = d3.time.format("%Y-%b-%d").parse;
+    //formatPercent = d3.format(".0%");
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var color = d3.scale.category20();
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(d3.format(".0%"));
+    //.tickFormat(formatPercent);
+
+var area = d3.svg.area()
+    .x(function(d) { return x(d.date); })
+    .y0(function(d) { return y(d.y0); })
+    .y1(function(d) { return y(d.y0 + d.y); });
+
+var stack = d3.layout.stack()
+    .values(function(d) { return d.values; });
+
+var svg = d3.select("#" + elementId).append("svg")
+    .attr("width","100%")
+   // .attr("height", height + margin.top + margin.bottom)
+    .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))       
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+  
+  data.forEach(function(d) {
+      d.date = parseDate(d.date);
+  });
+
+  data.forEach(function(d) {
+    d.total = 0
+    color.domain().forEach(function(c) {
+           d.total = d.total+parseFloat(d[c])
+    })
+    color.domain().forEach(function(c) {
+           d[c+'_'] = (d[c]/d.total)
+    })
+    
+  });
+
+  var browsers = stack(color.domain().map(function(name) {
+    return {
+      name: name,
+      values: data.map(function(d) {  
+        return {date: d.date, y: d[name+'_'] , value : d[name] * 1};
+      })
+    };
+  }));
+  
+  // Set domains for axes
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  y.domain([0, 1])
+
+  var browser = svg.selectAll(".browser")
+      .data(browsers)
+    .enter().append("g")
+      .attr("class", "browser");
+
+  browser.append("path")
+      .attr("class", "area")
+      .attr("d", function(d) { return area(d.values); })
+      .style("fill", function(d) { return color(d.name); });
+
+    function fade(t, a) {
+        browser.filter(function(t) {
+            return t.name != a
+        }).style("opacity", t)
+    }
+        
+  var legend = svg.selectAll(".legend")
+      .data(color.domain().reverse())
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 22 + ")"; });
+
+  legend.append("rect")
+      .attr("x", width+margin.right - 19)
+      .attr("width", 18)
+      .attr("height", 18)
+      .attr("rx", 2)  
+      .attr("fill", function(d, i) { return color(d); })
+      .attr("stroke", function(d, i) { return d3.rgb(color(d)).darker(); })
+      .on("mouseover", function(t) { return fade(.1, t) })
+      .on("mouseout", function(t) { return fade(1, t) });
+
+  legend.append("text")
+      .attr("y", 15)
+        .attr("x", width+margin.right - 24)
+      .style("text-anchor", "end")
+      .text(function(d) { return d;});
+  
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+}
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 20,
+            right: 120,
+            bottom: 30,
+            left: 50
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+       
+    }
+    
+}    
+
+normalizedStackedAreaChart(config, data);
+
+</script>

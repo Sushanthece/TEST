@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+        <script type="text/javascript" src="js/d3.v3.min.js"></script>
+        <script type="text/javascript" src="js/jquery.tipsy.js"></script>
+        <link href="css/tipsy.css" rel="stylesheet" type="text/css" />
+        <style>
+            svg {
+                font: 10px sans-serif;
+            }
+            .area {
+                fill: steelblue;
+                clip-path: url(#clip);
+            }
+            .axis path,
+            .axis line {
+                fill: none;
+                stroke: #000;
+                shape-rendering: crispEdges;
+            }
+            .brush .extent {
+                stroke: #fff;
+                fill-opacity: .125;
+                shape-rendering: crispEdges;
+            }
+        </style>
+    </head>
+    <body>
+    <div id="chartContainer">
+            <div id="chart1"></div>
+    </div>
+        <script>
+function zoomableAreaChar(config, data){
+  
+      var elementId = config.chartSetting.elementId;
+
+       //Setting up Margins
+        var mainMargin = {top: 10, right: 10, left: 70, bottom: 140};
+        var subMargin = {top: 350, right: 10, bottom: 40, left: 70};
+
+        //Widths, Heights
+        var width = 960 - mainMargin.left - mainMargin.right,
+            mainHeight = 450 - mainMargin.top - mainMargin.bottom,
+            subHeight = 450 - subMargin.top - subMargin.bottom;
+
+        var svg = d3.select("#" + elementId).append("svg")
+            .attr("width","100%")
+            .attr("viewBox", "0 0 "+(width +mainMargin.left + mainMargin.right)+' '+(mainHeight+mainMargin.top+mainMargin.bottom))
+          .append("g");
+
+        //Main Chart Scales
+        var mainXScale = d3.time.scale().range([0, width]);
+        var mainYScale = d3.scale.linear().range([mainHeight, 0]);
+
+        //Sub Chart scales
+        var subXScale = d3.time.scale().range([0, width]);
+        var subYScale = d3.scale.linear().range([subHeight, 0]);
+
+        //Main Chart Axes
+        var mainXAxis = d3.svg.axis().scale(mainXScale).orient('bottom');
+        var mainYAxis = d3.svg.axis().scale(mainYScale).orient('left').ticks(6).tickFormat(d3.format("s"));
+
+        //Sub Chart Axes
+        var subXAxis = d3.svg.axis().scale(subXScale).orient('bottom');
+        var subYAxis = d3.svg.axis().scale(subYScale).orient('left').ticks(2).tickFormat(d3.format("s"));
+
+        //Area
+        var mainArea = d3.svg.area()
+                .interpolate('monotone')
+                .x(function (d) {
+                    return mainXScale(d.date)
+                })
+                .y0(mainHeight)
+                .y1(function (d) {
+                    return mainYScale(d.price)
+                });
+
+        var subArea = d3.svg.area()
+                .interpolate('monotone')
+                .x(function (d) {
+                    return subXScale(d.date)
+                })
+                .y0(subHeight)
+                .y1(function (d) {
+                    return subYScale(d.price)
+                });
+
+        svg.append('defs')
+                .append('clipPath')
+                .attr('id', 'clip')
+                .append('rect')
+                .attr('width', width)
+                .attr('height', mainHeight);
+
+        var main = svg.append('g')
+                .classed('main', true)
+                .attr("transform", "translate(" + mainMargin.left + "," + mainMargin.top + ")");
+
+        var sub = svg.append('g')
+                .classed('sub', true)
+                .attr("transform", "translate(" + subMargin.left + "," + subMargin.top + ")");
+
+        var brush = d3.svg.brush()
+                .x(subXScale)
+                .on("brush", brushed);
+
+        var main = svg.append('g')
+                .classed('main', true)
+                .attr("transform", "translate(" + mainMargin.left + "," + mainMargin.top + ")");
+
+        var sub = svg.append('g')
+                .classed('sub', true)
+                .attr("transform", "translate(" + subMargin.left + "," + subMargin.top + ")");
+
+        var brush = d3.svg.brush()
+                .x(subXScale)
+                .on("brush", brushed);
+
+            mainXScale.domain(d3.extent(data, function (d) {
+                return d.date
+            }));
+            mainYScale.domain([0, d3.max(data, function (d) {
+                    return d.price
+                })]);
+
+            subXScale.domain(mainXScale.domain());
+            subYScale.domain(mainYScale.domain());
+
+            main.append("g")
+                    .classed("x axis", true)
+                    .attr("transform", "translate(0, " + mainHeight + ")")
+                    .call(mainXAxis);
+            main.append("g")
+                    .classed("y axis", true)
+                    .attr("transform", "translate(0, 0)")
+                    .call(mainYAxis);
+
+            main.append('path')
+                    .datum(data)
+                    .classed('area', true)
+                    .attr('d', mainArea);
+
+            sub.append("g")
+                    .classed("x axis", true)
+                    .attr("transform", "translate(0, " + subHeight + ")")
+                    .call(subXAxis);
+            sub.append("g")
+                    .classed("y axis", true)
+                    .attr("transform", "translate(0, 0)")
+                    .call(subYAxis);
+
+            sub.append('path')
+                    .datum(data)
+                    .classed('area', true)
+                    .attr('d', subArea);
+
+            sub.append("g")
+                    .classed("x brush", true)
+                    .call(brush)
+                    .selectAll("rect")
+                    .attr("y", -6)
+                    .attr("height", subHeight + 7);
+
+        function brushed() {
+            mainXScale.domain(brush.empty() ? subXScale.domain() : brush.extent());
+            main.select('.area').attr('d', mainArea);
+            main.select('.x.axis').call(mainXAxis);
+        }
+}
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        mainbHeight : 350,
+        subHeight : 100,
+        mainMargin : {top: 350, right: 10, bottom: 40, left: 70},
+        subMargin :{top: 10, right: 10, left: 70, bottom: 140},
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+    }
+    
+}   
+  //Date Parser
+   var parseDate = d3.time.format("%b %Y").parse;
+ 
+    d3.csv('data/price_data.csv', function (d) {
+        d.date = parseDate(d.date);
+        d.price = +d.price;
+        return d;
+    }, function (err, data) {
+            
+        zoomableAreaChar(config, data);
+});
+        </script>
+    </body>
+</html>

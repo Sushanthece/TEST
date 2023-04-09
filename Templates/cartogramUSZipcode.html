@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Cartogram</title>
+<style>
+
+.land {
+  stroke: #ccc;
+}
+
+.state {
+  stroke: #666;
+}
+
+.zip {
+    stroke: #CCC;
+    stroke-width: .3px;
+}
+  
+</style>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<script type="text/javascript" src="js//queue.v1.min.js"></script>
+<script type="text/javascript" src="js/topojson.v1.min.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+</head>
+<body>
+    <div id="chartContainer">
+        <div id="chart1"></div>
+    </div>
+
+<script>
+
+
+function cartogramUSZipcodeChar(config, data){
+
+    var elementId = config.chartSetting.elementId;
+
+    var height = config.chartSetting.height
+    var width = config.chartSetting.width
+
+    var margin = config.chartSetting.margin;
+    var width = width - margin.left - margin.right;
+    var height = height - margin.top - margin.bottom;
+
+    var colorArray = config.chartSetting.colorArray;
+    
+    var color = d3.scale.linear()
+                  .range(["#ff0000", "#ffff00","#00ff00"])
+                  .domain([0,0.5,1]);
+
+    var path = d3.geo.path();
+
+
+var svg = d3.select("#" + elementId).append("svg")
+     .attr("width", "100%")
+     .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    queue()
+    .defer(d3.json, "data/zips_us_topo.json")
+    .await(ready);
+
+    function ready(error, us) {
+      svg.append("g")
+      .attr("class", "counties")
+      .selectAll("path")
+      .data(topojson.feature(us, us.objects.zip_codes_for_the_usa).features)
+      .enter().append("path")
+      .attr("class", "zip")
+      .attr("fill", function(d) {return color(Math.random()) })
+      .attr("data-zip", function(d) {return d.properties.zip; })
+      .attr("data-state", function(d) {return d.properties.state; })
+      .attr("data-name", function(d) {return d.properties.name; })
+      .attr("d", path);
+      
+      $('.zip').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__; 
+          return "State : "+d.properties.state+' <br/> Zip : '+d.properties.zip+' <br/> Name : '+d.properties.name;
+        }
+     });
+
+    }
+
+
+}
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 1200,
+        height : 540,
+        margin : { 
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+       
+    }
+    
+}    
+cartogramUSZipcodeChar(config,'hai');
+
+  </script>
+</body>

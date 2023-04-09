@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+</style>
+</head>
+<body>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<script type="text/javascript" src="js/cloud.js"></script>
+<link href="css/tipsy.css" rel="stylesheet" type="text/css" />
+
+
+<div id="chartContainer">
+      <div id="chart1"></div>
+</div>
+
+<script>
+
+      var data = "Of course  your contention.  a first year grad student. You just got finished  some Marxian historian, Pete Garrison probably.  gonna be convinced of  next month when you get to James Lemon and then  gonna be  about how the economies of Virginia and Pennsylvania were entrepreneurial and capitalist way back in 1740. gonna last until next year.  gonna be in here regurgitating Gordon Wood,  about, you know, the Pre-Revolutionary utopia and the capital-forming effects of military mobilization…  drastically underestimates the impact of social distinctions predicated upon wealth, especially inherited wealth. You got that from Vickers, Work in Essex County, page 98, right? Yeah, I read that, too. Were you gonna plagiarize the whole thing for us? Do you have any thoughts of your own on this matter? Or do you, is that your thing? You come into a bar. You read some obscure passage and then pretend, you pawn it off as your own, as your own idea just to impress some girls and embarrass my friend? See, the sad thing about a guy like you is in 50 years,  gonna start  some  on your own and gonna come up with the fact that there are two certainties in life. do that. And two: you dropped a hundred and fifty grand on a education you coulda got for a dollar fifty in late charges at the public library.";
+
+    function wordCloudChart(config, data){
+        
+    var elementId = config.chartSetting.elementId;
+
+    var margin = config.chartSetting.margin
+        width = config.chartSetting.width - margin.left - margin.right,
+        height = config.chartSetting.height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;
+
+    var svg = d3.select("#" + elementId).append("svg")
+              .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+             
+        var common = "poop,i,me,my,myself,we,us,our,ours,ourselves,you,your,yours,yourself,yourselves,he,him,his,himself,she,her,hers,herself,it,its,itself,they,them,their,theirs,themselves,what,which,who,whom,whose,this,that,these,those,am,is,are,was,were,be,been,being,have,has,had,having,do,does,did,doing,will,would,should,can,could,ought,i'm,you're,he's,she's,it's,we're,they're,i've,you've,we've,they've,i'd,you'd,he'd,she'd,we'd,they'd,i'll,you'll,he'll,she'll,we'll,they'll,isn't,aren't,wasn't,weren't,hasn't,haven't,hadn't,doesn't,don't,didn't,won't,wouldn't,shan't,shouldn't,can't,cannot,couldn't,mustn't,let's,that's,who's,what's,here's,there's,when's,where's,why's,how's,a,an,the,and,but,if,or,because,as,until,while,of,at,by,for,with,about,against,between,into,through,during,before,after,above,below,to,from,up,upon,down,in,out,on,off,over,under,again,further,then,once,here,there,when,where,why,how,all,any,both,each,few,more,most,other,some,such,no,nor,not,only,own,same,so,than,too,very,say,says,said,shall";
+
+        var word_count = {};
+
+        var words = data.split(/[ '\-\(\)\*":;\[\]|{},.!?]+/);
+          if (words.length == 1){
+            word_count[words[0]] = 1;
+          } else {
+            words.forEach(function(word){
+              var word = word.toLowerCase();
+              if (word != "" && common.indexOf(word)==-1 && word.length>1){
+                if (word_count[word]){
+                  word_count[word]++;
+                } else {
+                  word_count[word] = 1;
+                }
+              }
+            })
+          }
+
+        var fill = d3.scale.category20();
+
+        var word_entries = d3.entries(word_count);
+
+        var xScale = d3.scale.linear()
+           .domain([0, d3.max(word_entries, function(d) {
+              return d.value;
+            })
+           ])
+           .range([10,100]);
+
+        d3.layout.cloud().size([width, height])
+          .timeInterval(20)
+          .words(word_entries)
+          .fontSize(function(d) { return xScale(+d.value); })
+          .text(function(d) { return d.key; })
+          .rotate(function() { return ~~(Math.random() * 2) * 90; })
+          .font("Impact")
+          .on("end", draw)
+          .start();
+
+        function draw(words) {
+        
+          words_chart =  svg.append("g")
+                              .attr("transform", "translate(" + [width >> 1, height >> 1] + ")")
+                            .selectAll("text")
+                              .data(words)
+                            .enter().append("g").attr("class","value")
+            
+            
+            words_chart.append("text")
+              .style("font-size", function(d) { return xScale(d.value) + "px"; })
+              .style("font-family", "Impact")
+              .style("fill", function(d, i) { return fill(i); })
+              .attr("text-anchor", "middle")
+              .attr("transform", function(d) {
+                return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+              })
+              .text(function(d) { return d.key; });
+
+            $('text').tipsy({ 
+                gravity: 'w', 
+                html: true, 
+                title: function() {
+                  var d = this.__data__;
+                  return 'Word : '+d.key+'<br/> occurances :'+d.value
+                }
+             });
+
+        }
+
+        d3.layout.cloud().stop();
+      }
+
+var config = {
+    chartSetting: {
+        elementId: "chart1",
+        adaptive: "true",
+        width: 960,
+        height: 400,
+        margin: {
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10 },
+        colorArray: ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+    }
+}
+
+wordCloudChart(config, data);
+  
+    </script>
+  </body>
+</html>

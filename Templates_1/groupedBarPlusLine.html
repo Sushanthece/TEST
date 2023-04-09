@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<style>
+
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+#chartContainer{
+    border: azure;
+    height: 300px;
+    background: white;
+}
+
+</style>
+</head>
+<body>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+
+    <div id="chartContainer">
+            <div id="chart1"></div>
+    </div>
+<script>
+
+
+function groupBarPlusLine(config, data) {
+
+    var elementId = config.chartSetting.elementId;
+
+    var height = config.chartSetting.height
+    var width = config.chartSetting.width
+
+    var variable = config.chartSetting.variable;
+    var line_data = config.chartSetting.line;
+
+    var margin = config.chartSetting.margin,
+        width = width - margin.left - margin.right,
+        height = height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;    
+
+    var chartSetting_cols = config.chartSetting.columns;
+
+var x0 = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var x1 = d3.scale.ordinal();
+
+var y = d3.scale.linear()
+    .rangeRound([height, 0]);
+
+var y1 = d3.scale.linear()
+     .range([height, 0]);
+
+var color = d3.scale.ordinal()
+    .range(colorArray);
+
+var xAxis = d3.svg.axis()
+    .scale(x0)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(d3.format(".2s"));
+
+var y1Axis = d3.svg.axis()
+        .scale(y1)
+        .orient("right")
+        .ticks(5);
+
+var svg = d3.select("#" + elementId).append("svg")
+     .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    color.domain(chartSetting_cols);
+
+    data.forEach(function(d) {
+    var y0 = 0;
+    d.groups = color.domain().map(function(name) { return {name: name, value:+d[name],groupby:d[variable]}; });
+    });
+ 
+    x0.domain(data.map(function(d) { return d[variable]; }));
+    x1.domain(chartSetting_cols).rangeRoundBands([0, x0.rangeBand()]);
+    y.domain([0, d3.max(data, function(d) { return d3.max(d.groups, function(d) { return d.value; }); })]);
+    y1.domain([0, d3.max(data, function(d) { return d[line_data]; })]).nice();
+  
+// Define the line
+var valueline = d3.svg.line()
+    .x(function(d) { return x0(d[variable]); })
+    .y(function(d) { return y1(d[line_data]); })
+    .defined(function(d) { return d[line_data]; });
+
+  svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + (height) + ")")
+    .call(xAxis);
+
+    svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+
+  // Add the Y Axis
+    svg.append("g")
+        .attr("class", "axis axis--y1")
+        .attr("transform", "translate(" + width + ",0)")
+         .call(y1Axis);
+
+    var state = svg.selectAll(".state")
+    .data(data)
+    .enter().append("g")
+    .attr("class", "g")
+    .attr("transform", function(d) { return "translate(" + x0(d[variable]) + ",0)"; });
+
+    function fade(t, a) {
+       $('.group_bar').css("opacity", t);
+       $('.'+a).css("opacity", 1);
+    }
+
+    state.selectAll("rect")
+        .data(function(d) { return d.groups; })
+        .enter().append("rect")
+        .attr("class", "group_bar")
+        .attr("class", function(d) { return "group_bar "+d.name })
+        .attr("width", x1.rangeBand()-1)
+        .attr("x", function(d) { return x1(d.name); })
+        .attr("y", function(d) { return y(d.value); })
+        .attr("data-title",function(d) { return d.groupby+','+d.name+' '+d.value })
+        .attr("height", function(d) { return height - y(d.value); })
+        .attr("fill", function(d) { return color(d.name); })
+        .attr("stroke", function(d) { return d3.rgb(color(d.name)).darker(); });
+
+     // Add the valueline path.
+    svg.append("path")
+        .attr("class", "line")
+        .attr("transform", "translate("+ x0.rangeBand()/2+",0)")
+        .attr("d", valueline(data))
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 2)
+        .attr("fill", 'none');
+
+    // what to do when we mouse over a bubble
+    var mouseOn = function() { 
+        var circle = d3.select(this);
+      
+    // transition to increase size/opacity of bubble
+        circle.transition()
+        .duration(800).style("opacity", 1)
+        .attr("r", 12).ease("elastic");
+
+        // append lines to bubbles that will be used to show the precise data points.
+        // translate their location based on margins
+        svg.append("g")
+            .attr("class", "guide")
+        .append("line")
+            .attr('stroke-width','1')
+            .attr("x1", parseFloat(circle.attr("cx"))+(x0.rangeBand()/2))
+            .attr("x2", parseFloat(circle.attr("cx"))+(x0.rangeBand()/2))
+            .attr("y1", circle.attr("cy"))
+            .attr("y2", height)
+            .style("stroke", circle.style("fill"))
+            .transition().delay(200).duration(400).styleTween("opacity", 
+                        function() { return d3.interpolate(0, 1); })
+
+        svg.append("g")
+            .attr("class", "guide")
+        .append("line")
+            .attr('stroke-width','1')
+            .attr("x1", parseFloat(circle.attr("cx"))+(x0.rangeBand()/2))
+            .attr("x2", width)
+            .attr("y1", circle.attr("cy"))
+            .attr("y2", circle.attr("cy"))
+            .style("stroke", circle.style("fill"))
+            .transition().delay(200).duration(400).styleTween("opacity", 
+                        function() { return d3.interpolate(0, 1); });
+
+    // function to move mouseover item to front of SVG stage, in case
+    // another bubble overlaps it
+        d3.selection.prototype.moveToFront = function() { 
+          return this.each(function() { 
+            this.parentNode.appendChild(this); 
+          });
+        };
+    };
+    // what happens when we leave a bubble?
+    var mouseOff = function() {
+        var circle = d3.select(this);
+
+        // go back to original size and opacity
+        circle.transition()
+        .duration(800).style("opacity", 1)
+        .attr("r", 6).ease("elastic");
+
+        // fade out guide lines, then remove them
+        d3.selectAll(".guide").transition().duration(100).styleTween("opacity", 
+                        function() { return d3.interpolate(1, 0); })
+            .remove()
+    };
+
+    var circles = svg.selectAll(".circle")
+                .data(data)
+                .enter()
+                .append("g")
+                .append("circle")
+                .attr("class",'circle')
+                .attr("r",6)
+                .attr("transform", "translate("+ x0.rangeBand()/2+",0)")
+                .attr("cx", function(d) { return x0(d[variable]); })
+                .attr("cy", function(d) { return y1(d[line_data]); })
+                .attr("fill",d3.rgb('steelblue').brighter() )
+                .attr("stroke",'steelblue')
+                .on("mouseover", mouseOn)
+                .on("mouseout", mouseOff);
+
+  var legend = svg.selectAll(".legend")
+        .data(chartSetting_cols)
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(30," + i * 22 + ")"; });
+ 
+    legend.append("rect")
+      .attr("x", width- 3)
+      .attr("width", 18)
+      .attr("height", 18)
+      .attr("stroke", function(d, i) { return d3.rgb(color(i)).darker() })
+      .attr("fill", function(d, i) { return color(i) })
+      .attr("rx", 2)  
+      .on("mouseover", function(t) { return fade(.1, t) })
+      .on("mouseout", function(t) { return fade(1, t) });
+     
+    legend.append("text")
+      .attr("x", width +20 )
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "start")
+      .text(function(d) { return d });
+  
+$('.group_bar').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return "type :"+d.name+' <br/> '+variable+' :'+d.groupby+' <br/> '+d.value+'%'
+        }
+     });
+
+$('circle').tipsy({ 
+        gravity: 'e', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return variable+" : "+d[variable]+'<br/> '+line_data+' : '+d[line_data]
+        }
+     }); 
+ 
+}
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 40,
+            right: 125,
+            bottom: 25,
+            left: 50
+        },
+        colorArray : ["#00a3d9", "#00d3a9", "#ffd24d"],
+       columns : ["Ed","Critical Care","cardiology"],
+       variable : 'Name',
+       line :'sla'
+    }
+} 
+   
+d3.csv('data/coding.csv',function (data) {
+    data.forEach(function(d) {
+       ["Ed","Critical Care","cardiology"].forEach(function(c){
+          d[c] = parseInt(d[c]);
+       });
+       d['sla'] = parseInt(d['sla']);
+       
+    });
+    groupBarPlusLine(config, data);
+});
+      
+    
+</script>
+</body>

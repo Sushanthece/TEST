@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Cartogram</title>
+<style>
+
+.land {
+  stroke: #ccc;
+}
+
+.state {
+  stroke: #666;
+}
+
+
+</style>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<script type="text/javascript" src="js/topojson.v1.min.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+</head>
+<body>
+    <div id="chartContainer">
+        <div id="chart1"></div>
+    </div>
+
+<script>
+
+    var sampleData ={};    /* Sample random data. */    
+        ["HI", "AK", "FL", "SC", "GA", "AL", "NC", "TN", "RI", "CT", "MA",
+        "ME", "NH", "VT", "NY", "NJ", "PA", "DE", "MD", "WV", "KY", "OH", 
+        "MI", "WY", "MT", "ID", "WA", "DC", "TX", "CA", "AZ", "NV", "UT", 
+        "CO", "NM", "OR", "ND", "SD", "NE", "IA", "MS", "IN", "IL", "MN", 
+        "WI", "MO", "AR", "OK", "KS", "LS", "VA"]
+            .forEach(function(d){ 
+                var low=Math.round(100*Math.random()), 
+                    mid=Math.round(100*Math.random()), 
+                    high=Math.round(100*Math.random());
+                sampleData[d]={low:d3.min([low,mid,high]), high:d3.max([low,mid,high]), 
+                        avg:Math.round((low+mid+high)/3), color:d3.interpolate("#ffffcc", "#800026")(low/100)}; 
+            });
+
+function cartogramUSStateChar(config, data){
+// Ratio of Obese (BMI >= 30) in U.S. Adults, CDC 2008
+
+    var elementId = config.chartSetting.elementId;
+
+    var height = config.chartSetting.height
+    var width = config.chartSetting.width
+
+var margin = config.chartSetting.margin;
+var width = width - margin.left - margin.right;
+var height = height - margin.top - margin.bottom;
+
+var colorArray = config.chartSetting.colorArray;
+
+var path = d3.geo.path()
+
+
+var svg = d3.select("#" + elementId).append("svg")
+     .attr("width", "100%")
+     .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+d3.json("data/us.json", function(error, us) {
+  if (error) throw error;
+var centered;
+ svg.append("rect")
+        .attr("class", "background")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("fill",'none')
+        .attr("pointer-events",'all')
+        .on("click", clicked)
+
+var map_data = [
+  {
+    "id":1,
+    "State":"Alabama",
+    "Abbreviation":"AL",
+    "population_1":717763,
+    "population_2":691662,
+    "population_3":19401250
+  },
+  {
+    "id":2,
+    "State":"Alaska",
+    "Abbreviation":"AK",
+    "population_1":723867,
+    "population_2":685769,
+    "population_3":13478479
+  },
+  {
+    "id":4,
+    "State":"Arizona",
+    "Abbreviation":"AZ",
+    "population_1":715465,
+    "population_2":666123,
+    "population_3":9946649
+  },
+  {
+    "id":5,
+    "State":"Arkansas",
+    "Abbreviation":"AR",
+    "population_1":724824,
+    "population_2":674837,
+    "population_3":9873114
+  },
+  {
+    "id":6,
+    "State":"California",
+    "Abbreviation":"CA",
+    "population_1":715292,
+    "population_2":643763,
+    "population_3":6440290
+  },
+  {
+    "id":8,
+    "State":"Colorado",
+    "Abbreviation":"CO",
+    "population_1":709085,
+    "population_2":638177,
+    "population_3":6393605
+  },
+  {
+    "id":9,
+    "State":"Connecticut",
+    "Abbreviation":"CT",
+    "population_1":721514,
+    "population_2":641346,
+    "population_3":5797082
+  },
+  {
+    "id":10,
+    "State":"Delaware",
+    "Abbreviation":"DE",
+    "population_1":708568,
+    "population_2":619997,
+    "population_3":5048672
+  },
+  {
+    "id":11,
+    "State":"District of Columbia",
+    "Abbreviation":"DC",
+    "population_1":750159,
+    "population_2":650138,
+    "population_3":4971982
+  },
+  {
+    "id":12,
+    "State":"Florida",
+    "Abbreviation":"FL",
+    "population_1":705954,
+    "population_2":617710,
+    "population_3":4954939
+  },
+  {
+    "id":13,
+    "State":"Georgia",
+    "Abbreviation":"GA",
+    "population_1":738716,
+    "population_2":633185,
+    "population_3":4469088
+  },
+  {
+    "id":15,
+    "State":"Hawaii",
+    "Abbreviation":"HI",
+    "population_1":744170,
+    "population_2":629682,
+    "population_3":4163145
+  },
+  {
+    "id":16,
+    "State":"Idaho",
+    "Abbreviation":"ID",
+    "population_1":689701,
+    "population_2":574751,
+    "population_3":3530765
+  },
+  {
+    "id":17,
+    "State":"Illinois",
+    "Abbreviation":"IL",
+    "population_1":728139,
+    "population_2":595750,
+    "population_3":3365742
+  },
+  {
+    "id":18,
+    "State":"Indiana",
+    "Abbreviation":"IN",
+    "population_1":738460,
+    "population_2":604195,
+    "population_3":3298420
+  },
+  {
+    "id":19,
+    "State":"Iowa",
+    "Abbreviation":"IA",
+    "population_1":726370,
+    "population_2":594303,
+    "population_3":3298428
+  },
+  {
+    "id":20,
+    "State":"Kansas",
+    "Abbreviation":"KS",
+    "population_1":717360,
+    "population_2":586931,
+    "population_3":3274676
+  },
+  {
+    "id":21,
+    "State":"Kentucky",
+    "Abbreviation":"KY",
+    "population_1":752749,
+    "population_2":602199,
+    "population_3":3031795
+  },
+  {
+    "id":22,
+    "State":"Louisiana",
+    "Abbreviation":"LA",
+    "population_1":735570,
+    "population_2":588456,
+    "population_3":2988204
+  },
+  {
+    "id":23,
+    "State":"Maine",
+    "Abbreviation":"ME",
+    "population_1":715800,
+    "population_2":572640,
+    "population_3":2878782
+  },
+  {
+    "id":24,
+    "State":"Maryland",
+    "Abbreviation":"MD",
+    "population_1":672392,
+    "population_2":537914,
+    "population_3":2728587
+  },
+  {
+    "id":25,
+    "State":"Massachusetts",
+    "Abbreviation":"MA",
+    "population_1":741083,
+    "population_2":576398,
+    "population_3":2677928
+  },
+  {
+    "id":26,
+    "State":"Michigan",
+    "Abbreviation":"MI",
+    "population_1":688860,
+    "population_2":535780,
+    "population_3":2424689
+  },
+  {
+    "id":27,
+    "State":"Minnesota",
+    "Abbreviation":"MN",
+    "population_1":674818,
+    "population_2":524858,
+    "population_3":2416241
+  },
+  {
+    "id":28,
+    "State":"Mississippi",
+    "Abbreviation":"MS",
+    "population_1":766982,
+    "population_2":575237,
+    "population_3":2324838
+  },
+  {
+    "id":29,
+    "State":"Missouri",
+    "Abbreviation":"MO",
+    "population_1":730069,
+    "population_2":547552,
+    "population_3":2206729
+  },
+  {
+    "id":30,
+    "State":"Montana",
+    "Abbreviation":"MT",
+    "population_1":779871,
+    "population_2":557050,
+    "population_3":1985120
+  },
+  {
+    "id":31,
+    "State":"Nebraska",
+    "Abbreviation":"NE",
+    "population_1":762964,
+    "population_2":544974,
+    "population_3":1939026
+  },
+  {
+    "id":32,
+    "State":"Nevada",
+    "Abbreviation":"NV",
+    "population_1":718059,
+    "population_2":512907,
+    "population_3":1798339
+  },
+  {
+    "id":33,
+    "State":"New Hampshire",
+    "Abbreviation":"NH",
+    "population_1":768547,
+    "population_2":513364,
+    "population_3":1553563
+  },
+  {
+    "id":34,
+    "State":"New Jersey",
+    "Abbreviation":"NJ",
+    "population_1":737283,
+    "population_2":491522,
+    "population_3":1497040
+  },
+  {
+    "id":35,
+    "State":"New Mexico",
+    "Abbreviation":"NM",
+    "population_1":746232,
+    "population_2":497488,
+    "population_3":1492463
+  },
+  {
+    "id":36,
+    "State":"New York",
+    "Abbreviation":"NY",
+    "population_1":713822,
+    "population_2":475881,
+    "population_3":1471451
+  },
+  {
+    "id":37,
+    "State":"North Carolina",
+    "Abbreviation":"NC",
+    "population_1":721476,
+    "population_2":480984,
+    "population_3":1452011
+  },
+  {
+    "id":38,
+    "State":"North Dakota",
+    "Abbreviation":"ND",
+    "population_1":689733,
+    "population_2":459822,
+    "population_3":1419550
+  },
+  {
+    "id":39,
+    "State":"Ohio",
+    "Abbreviation":"OH",
+    "population_1":695179,
+    "population_2":417108,
+    "population_3":1042786
+  },
+  {
+    "id":40,
+    "State":"Oklahoma",
+    "Abbreviation":"OK",
+    "population_1":618508,
+    "population_2":371105,
+    "population_3":940752
+  },
+  {
+    "id":41,
+    "State":"Oregon",
+    "Abbreviation":"OR",
+    "population_1":618471,
+    "population_2":371083,
+    "population_3":925163
+  },
+  {
+    "id":42,
+    "State":"Pennsylvania",
+    "Abbreviation":"PA",
+    "population_1":797864,
+    "population_2":398932,
+    "population_3":817232
+  },
+  {
+    "id":72,
+    "State":"Puerto Rico",
+    "Abbreviation":"PR",
+    "population_1":696157,
+    "population_2":348078,
+    "population_3":709781
+  },
+  {
+    "id":78,
+    "State":"U.S. Virgin Islands",
+    "Abbreviation":"VI",
+    "population_1":300339,
+    "population_2":149511,
+    "population_3":285112
+  },
+  {
+    "id":44,
+    "State":"Rhode Island",
+    "Abbreviation":"RI",
+    "population_1":664596,
+    "population_2":332298,
+    "population_3":665045
+  },
+  {
+    "id":45,
+    "State":"South Carolina",
+    "Abbreviation":"SC",
+    "population_1":660359,
+    "population_2":330180,
+    "population_3":663407
+  },
+  {
+    "id":46,
+    "State":"South Dakota",
+    "Abbreviation":"SD",
+    "population_1":525146,
+    "population_2":262273,
+    "population_3":527587
+  },
+  {
+    "id":47,
+    "State":"Tennessee",
+    "Abbreviation":"TN",
+    "population_1":507247,
+    "population_2":253324,
+    "population_3":504400
+  },
+  {
+    "id":48,
+    "State":"Texas",
+    "Abbreviation":"TX",
+    "population_1":455520,
+    "population_2":227371,
+    "population_3":449578
+  },
+  {
+    "id":49,
+    "State":"Utah",
+    "Abbreviation":"UT",
+    "population_1":403793,
+    "population_2":201417,
+    "population_3":394756
+  },
+  {
+    "id":50,
+    "State":"Vermont",
+    "Abbreviation":"VT",
+    "population_1":352066,
+    "population_2":175464,
+    "population_3":339934
+  },
+  {
+    "id":51,
+    "State":"Virginia",
+    "Abbreviation":"VA",
+    "population_1":300339,
+    "population_2":149511,
+    "population_3":285112
+  },
+  {
+    "id":53,
+    "State":"Washington",
+    "Abbreviation":"WA",
+    "population_1":699628,
+    "population_2":233209,
+    "population_3":369741
+  },
+  {
+    "id":54,
+    "State":"West Virginia",
+    "Abbreviation":"WV",
+    "population_1":736732,
+    "population_2":243816,
+    "population_3":368866
+  },
+  {
+    "id":55,
+    "State":"Wisconsin",
+    "Abbreviation":"WI",
+    "population_1":626562,
+    "population_2":208670,
+    "population_3":313006
+  },
+  {
+    "id":56,
+    "State":"Wyoming",
+    "Abbreviation":"WY",
+    "population_1":576412,
+    "population_2":192137,
+    "population_3":292077
+  }
+];
+
+var color = d3.scale.linear().range(["#ff0000", "#ffff00","#00ff00"])
+    .domain([d3.min(map_data, function (d) { return d.population_1 })*.9,(d3.min(map_data, function (d) { return d.population_1 })+d3.max(map_data, function (d) { return d.population_1 }))/2,d3.max(map_data, function (d) { return d.population_1 })*1.1])
+
+id_mapper = {10:"Delaware",11:"District of Columbia",12:"Florida",13:"Georgia",15:"Hawaii",16:"Idaho",17:"Illinois",18:"Indiana",19:"Iowa",20:"Kansas",21:"Kentucky",22:"Louisiana",23:"Maine",24:"Maryland",25:"Massachusetts",26:"Michigan",27:"Minnesota",28:"Mississippi",29:"Missouri",30:"Montana",31:"Nebraska",32:"Nevada",33:"New Hampshire",34:"New Jersey",35:"New Mexico",36:"New York",37:"North Carolina",38:"North Dakota",39:"Ohio",40:"Oklahoma",41:"Oregon",42:"Pennsylvania",44:"Rhode Island",45:"South Carolina",46:"South Dakota",47:"Tennessee",48:"Texas",49:"Utah",50:"Vermont",51:"Virginia",53:"Washington",54:"West Virginia",55:"Wisconsin",56:"Wyoming",72:"Puerto Rico",01:"Alabama",02:"Alaska",04:"Arizona",05:"Arkansas",06:"California",08:"Colorado",09:"Connecticut",78:"U.S. Virgin Islands"};
+  
+  var g = svg.append("g");
+  
+  map_data.forEach(function(m){
+    us.objects.states.geometries.forEach(function(d) {
+       
+    if (m.id==d.id){
+          d.properties = {}
+          d.properties['state_name'] = id_mapper[d.id]
+          d.properties['population_1'] = m.population_1
+          d.properties['st_code'] = m.Abbreviation
+    } 
+
+     });
+  });
+  
+  g.append("path")
+      .datum(topojson.feature(us, us.objects.land))
+      .attr("class", "land")
+      .attr("d", path);
+
+  g.selectAll(".state")
+      .data(topojson.feature(us, us.objects.states).features)
+    .enter().append("path")
+      .attr("class", "state")
+      .attr("d", path)
+     .attr("fill", function(d) {  return color(d.properties.population_1); })
+      .style("stroke-width", 1 )
+     .on("click", clicked);
+    
+      function addThousandsSeparator(t){
+          var a=t;if(parseFloat(t)){t=new String(t);var e=t.split(".");e[0]=e[0].split("").reverse().join("").replace(/(\d{3})(?!$)/g,"$1,").split("").reverse().join(""),a=e.join(".")}
+           return a
+      }
+      
+  g.selectAll(".geom-label")
+      .data(topojson.feature(us, us.objects.states).features)
+    .enter().append("text")
+      .attr("class", "geom-label")
+      .attr("transform", function(d) { return isNaN(path.centroid(d)[0])? "translate(0,0)" : "translate(" + path.centroid(d) + ")"  })
+      .attr("dy", ".35em")
+      .attr("text-anchor", "middle")
+      .style("text-transform", "uppercase")
+      .text(function(d) { return path.area(d)>1800? d.properties.st_code : '' })
+      .attr("fill", function(d) { return isNaN(path.centroid(d)[0])? '#fff' : ((parseInt(color(d.properties.population_1).replace('#', ''), 16) > 0xffffff / 2) ? '#000' : '#000')});
+      
+ 
+function clicked(d) {
+      
+          var x, y, k;
+          if (d && centered !== d) {
+            var centroid = path.centroid(d);
+            x = centroid[0];
+            y = centroid[1];
+            k = 4;
+            centered = d;
+          } else {
+            x = width / 2;
+            y = height / 2;
+            k = 1;
+            centered = null;
+          }
+
+          g.selectAll("path")
+              .classed("active", centered && function(d) { return d === centered; });
+
+          g.transition()
+              .duration(750)
+              .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + Math.sqrt(k) + ")translate(" + -x + "," + -y + ")")
+              .style("stroke-width", 1.5 / k + "px");
+
+}
+  
+$('.state').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return "State : "+d.properties.state_name+' <br/> Population : '+addThousandsSeparator(d.properties.population_1);
+        }
+     });
+
+});
+
+}
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 1200,
+        height : 540,
+        margin : { 
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+       
+    }
+    
+}    
+cartogramUSStateChar(config,'hai');
+
+</script>
+</body>
+</html>

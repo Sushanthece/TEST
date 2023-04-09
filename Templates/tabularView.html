@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+#chartContainer{
+    border: azure;
+    height: 300px;
+    background: white;
+}
+
+tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+
+</style>
+</head>
+<body>
+
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+
+
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+<link rel="stylesheet" type="text/css" media="screen" href="css/jquery.dataTables.min.css">
+
+    <div id="chartContainer">
+            <div id="chart1"></div>
+    </div>
+
+<script>
+
+function tabularView(config, data) {
+
+    var elementId = config.chartSetting.elementId;
+
+    var height = config.chartSetting.height
+    var width = config.chartSetting.width
+
+    var variable = config.chartSetting.variable;
+  
+    var chartSetting_cols = config.chartSetting.columns;
+
+    var table = d3.select('#chart1')
+                .append('table')
+                .attr("id" ,"example")
+                .attr("class" , "display")
+                .attr("cellspacing" , "0");
+
+    var thead = table.append('thead')
+    var tfoot = table.append('thead').attr('class','sub_head')
+    var tbody = table.append('tbody')
+
+    thead.append('tr')
+            .selectAll('th')
+            .data(chartSetting_cols)
+            .enter()
+            .append('th')
+            .text(function (d) { return d })
+
+    tfoot.append('tr')
+            .selectAll('th')
+            .data(chartSetting_cols)
+            .enter()
+            .append('th')
+            .text(function (d) { return d })
+
+    var rows = tbody.selectAll('tr')
+                .data(data)
+                .enter()
+                .append('tr')
+
+    var cells = rows.selectAll('td')
+        .data(function(row) {
+            return chartSetting_cols.map(function (column) {
+                return { column: column, value: row[column] }
+          })
+      }).enter()
+    .append('td')
+      .text(function (d) { return d.value })
+
+  return table;
+ 
+}
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 10,
+            right: 100,
+            bottom: 25,
+            left: 40
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+        columns : ["county_id","county_name","state","population"],
+        variable : 'month'
+    }
+} 
+   
+d3.csv('data/county.csv',function (data) {
+
+    tabularView(config, data);
+   $('#example .sub_head th').each( function (i) {
+        var title = $('#example thead th').eq( $(this).index() ).text();
+        $(this).html( '<input type="text" placeholder="Search '+title+'" data-index="'+i+'" />' );
+    } );
+ 
+    var table = $('#example').DataTable();   
+    $( table.table().container() ).on( 'keyup', '.sub_head input', function () {
+        table
+            .column( $(this).data('index') )
+            .search( this.value )
+            .draw();
+    } );
+
+});
+   
+</script>
+</body>
+    
+

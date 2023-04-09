@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dsnap - Charts</title>
+<style>
+body {
+      margin: auto;
+      position: relative;
+}
+
+</style>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+</head>
+<body>
+
+<div id="chartContainer">
+    <div id="chart1"></div>
+</div>
+<script>
+var data = {
+         "name": "HMM",
+         "children": [
+          {
+           "name": "Alcohal Abuse",
+           "children": [
+            {
+             "name": "cluster",
+             "children": [
+              {"name": "Liver Disease", "size": 3938},
+              {"name": "Obesity", "size": 3812},
+              {"name": "Neurologic", "size": 6714},
+              {"name": "Heart", "size": 743}
+             ]
+            },
+            {
+             "name": "graph",
+             "children": [
+              {"name": "Paralysis", "size": 3534},
+              {"name": "Asthma ", "size": 5731},
+              {"name": "Periculas", "size": 7840},
+              {"name": "Anaemia", "size": 5914},
+              {"name": "Peptic Alcer", "size": 3416}
+             ]
+            },
+            {
+             "name": "graph",
+             "children": [
+              {"name": "Paralysis", "size": 3534},
+              {"name": "Asthma ", "size": 5731},
+              {"name": "Periculas", "size": 7840},
+              {"name": "Anaemia", "size": 5914},
+              {"name": "Peptic Alcer", "size": 3416}
+             ]
+            }
+            ]
+          }]
+        };
+          
+function treemapChar(config, data) {
+          
+ var elementId = config.chartSetting.elementId;
+
+    var margin = config.chartSetting.margin
+        width = config.chartSetting.width - margin.left - margin.right,
+        height = config.chartSetting.height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;
+
+       var color = d3.scale.category10();
+        
+        var treemap = d3.layout.treemap()
+                          .size([width,height])
+                          .sticky(true)
+                          .value(function(d) { return d.size; });
+
+        var div = d3.select("#"+elementId).append("svg")
+                    .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+                        .append("g")
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                       
+          var node = div.datum(data).selectAll(".node")
+              .data(treemap.nodes)
+            .enter().append("rect")
+              .attr("class", "node") 
+              .attr("x", function(d) { return d.x  })
+              .attr("y", function(d) { return d.y  })
+              .attr("width", function(d) { return Math.max(0, d.dx - 1)  })
+              .attr("height", function(d) { return Math.max(0, d.dy - 1) })
+              .attr("fill", function(d,i) { return d.children ? color(i) : color(i); })
+              .attr("stroke", function(d,i) { return d.children ? d3.rgb(color(i)).darker() : d3.rgb(color(i)).darker(); })
+
+            node
+                .data(treemap.value(function(d) { return d.size; }).nodes)
+              .transition()
+                .duration(1500)
+                .attr("x", function(d) { return d.x  })
+                .attr("y", function(d) { return d.y  })
+                .attr("width", function(d) { return Math.max(0, d.dx - 1)  })
+                .attr("height", function(d) { return Math.max(0, d.dy - 1) })
+                .attr("fill", function(d,i) { return d.children ? color(i) : color(i); })
+                .attr("stroke", function(d,i) { return d.children ? d3.rgb(color(i)).darker() : d3.rgb(color(i)).darker(); })
+
+}
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+       
+    }
+    
+}    
+treemapChar(config, data);
+    </script>
+</body>
+</html>

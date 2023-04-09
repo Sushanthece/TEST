@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>Stacked</title>
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line, 
+.axis1 path,
+.axis1 line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.line {
+  fill: none;
+
+}
+
+.hover-line { 
+  stroke: #E6E7E8;
+  fill: none;
+  stroke-width: 1px;
+  left: 10px;
+  shape-rendering: crispEdges;
+  opacity: 1e-6;
+}
+    
+.grid line {
+  stroke: lightgrey;
+  stroke-opacity: 0.7;
+  shape-rendering: crispEdges;
+}
+
+.grid path {
+  stroke-width: 0;
+}
+
+.hover-text {
+  stroke: none;
+  font-size: 30px;
+  font-weight: bold;
+  fill: #000000;
+}
+</style>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+</head>
+<body>
+
+    <div id="chartContainer">
+        <div id="chart1"></div>
+    </div>
+
+<script>
+
+var data = [
+  {month: "Q1-2016", apples: 3840, bananas: 1920, cherries: -1960, dates: -400},
+  {month: "Q2-2016", apples: 1600, bananas: 1440, cherries: -960, dates: -400},
+  {month: "Q3-2016", apples:  640, bananas:  960, cherries: -640, dates: -600},
+  {month: "Q4-2016", apples:  320, bananas:  480, cherries: -640, dates: -400}
+];
+
+var svg = d3.select("#chart1")
+		.append("svg")
+		 .attr("viewBox", "0 0 960 500")
+		  .append("g");
+		  
+var series = d3.layout.stack()(["apples", "bananas", "cherries", "dates"].map(function(c) {
+    return data.map(function(d) {
+      return {x: d.month, y: d[c], type : c, data: d };
+    });
+  }));
+
+ /*     series.forEach(function(d,i) {
+        d.key = d[0].type
+        d.index = i
+    });
+   
+   */
+      var yp = 0
+      var yn = 0;  
+      series.forEach(function(sub_series,sub_i) {
+		sub_series.forEach(function(d,i) {
+		  d['y']
+		});  
+		//console.log(vals);
+    });  
+console.log(series);
+    margin = {top: 20, right: 30, bottom: 30, left: 60},
+    width = 960,
+    height = 500;
+
+var x = d3.scale.ordinal()
+    .rangeRoundBands([margin.left, width - margin.right],.1);
+ 
+    x.domain(series[0].map(function(d) { return d.x; }));
+
+var y = d3.scale.linear()
+    .rangeRound([height - margin.bottom, margin.top]);
+
+y.domain([-2500,6000]);//.nice();
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+
+var z = d3.scale.ordinal().range(["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"]);
+
+svg.append("g")
+  .selectAll("g")
+  .data(series)
+  .enter().append("g")
+    .attr("fill", function(d,i) { return z(i); })
+  .selectAll("rect")
+  .data(function(d) { return d; })
+  .enter().append("rect")
+    .attr("width", x.rangeBand() )
+    .attr("x", function(d) {  return x(d.x); })
+      .attr("y", function(d) { return (y(d.y0) - y(d.y + d.y0))<0? y(d.y0) : y(d.y + d.y0); })
+      .attr("height", function(d) { return (y(d.y0) - y(d.y + d.y0))<0? (y(d.y + d.y0) - y(d.y0)) :  (y(d.y0) - y(d.y + d.y0))  ; })
+      .attr("width", x.rangeBand() - 1);
+
+  svg.append("g")
+      .attr("class", "axis x")
+      .attr("transform", "translate(0," + y(0) + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "axis y")
+       .attr("transform", "translate(" + margin.left + ",0)")
+      .call(yAxis);
+
+  
+$('rect').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return "type :"+d.type+' <br/> Month :'+d.x+' <br/> '+d.y
+        }
+     });  
+
+function stackMin(serie) {
+  return d3.min(serie, function(d) { return d[0]; });
+}
+
+function stackMax(serie) {
+  return d3.max(serie, function(d) { return d[1]; });
+}
+
+</script>

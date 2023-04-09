@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html ng-app="VisApp">
+  <head>
+    <meta http-equiv="X-UA-COMPATIBLE" content="IE=EmulateIE9">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Sushanth">
+    <meta http-equiv="refresh" content="6000">
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/basic.css" rel="stylesheet">
+    <link href="css/feature.css" rel="stylesheet">
+    <link href="css/custom-styles.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="images/favicon.ico">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/pin.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/docs.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/modal.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/style.css">
+    <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+    <script type="text/javascript" src="js/angular.min.js"></script>
+    <title>Smart Med Coding</title>
+  </head>
+  <script type="text/javascript">
+
+    var VisApp = angular.module("VisApp",[]);
+    VisApp.controller("visCtrl",function($scope){
+
+        $scope.employees = [
+  {
+    "title": "Coder and Auditor Report",
+    "url": "CADReport.html",
+    "image": "CADReport.png"
+  },
+  {
+    "title": "Coding Inventory Summary",
+    "url": "CISReport.html",
+    "image": "CISReport.png"
+  },
+  {
+    "title": "Pending Inventory Summary",
+    "url": "PISReport.html",
+    "image": "PISReport.png"
+  },
+  {
+    "title": "Production Inventory Summary",
+    "url": "PrISReport.html",
+    "image": "PrISReport.png"
+  },
+  {
+    "title": "Coding Error Summary",
+    "url": "CRReport.html",
+    "image": "CRReport.png"
+  },
+  {
+    "title": "Coding Write-Off Summary",
+    "url": "CWReport.html",
+    "image": "CWReport.png"
+  },
+  {
+    "title": "Unspecified Code Summary",
+    "url": "USCReport.html",
+    "image": "USCReport.png"
+  },
+  {
+    "title": "Production Inventory Detail Summary",
+    "url": "PrISReportDetail.html",
+    "image": "PrISReportDetail.png"
+  }
+];
+    $scope.orderProp="name";
+        });
+   
+</script>
+ <body class="theme-beige" ng-controller="visCtrl" >
+    <div class="container">
+        <div class="row">
+            <p class="heading-part"><a href="https://www.global.com"> <img src="images/-logo-top.fw.png"></a></p>
+            <center><p class="heading-part" style="text-transform: uppercase">SmartMed Coding</p></center>
+        </div>
+    </div>
+
+  <div class="container">
+     <div class="row"></div><br/><br/><br/>
+  <div class="inner">
+    <div align="center">
+        <div class="entry" ng-repeat="emp in employees | filter:query" >
+            <a href="{{emp.url}}" class="demo thumbnail pull-left">
+            <img width="192" height="128" src="images/{{emp.image}}" id="grey_scale" class="visual-img">
+                <h3 align="left">{{emp.title}}</h3>
+            </a>
+        </div>
+    </div>
+  </div>
+
+  </div>
+  <div class="container footer_details" style="text-align:center">
+©All rights reserved. privileged and confidential information.
+</div>
+ </body>
+</html>

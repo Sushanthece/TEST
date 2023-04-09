@@ -1,0 +1,36 @@
+name,latitude,longitude,population,color
+Excelsior,37.7244,-122.421,0.083884,#8dd3c7
+Crocker Amazon,37.7107,-122.4372,0.058439,#ffffb3
+Marina,37.8021,-122.4369,0.40364,#bebada
+Nob Hill,37.793,-122.416,0.33259,#fb8072
+North Beach,37.8045,-122.4076,0.28784,#80b1d3
+Pacific Heights,37.7924,-122.4352,0.33382,#fdb462
+Presidio Heights,37.7868,-122.4538,0.19965,#b3de69
+Russian Hill,37.8014,-122.4182,0.34165,#fccde5
+Visitacion Valley,37.7144,-122.4113,0.064774,#d9d9d9
+Diamond Heights,37.7423,-122.4423,0.074148,#bc80bd
+Glen Park,37.7378,-122.4316,0.1226,#ccebc5
+Inner Sunset,37.7584,-122.4654,0.18995,#ffed6f
+Lakeshore,37.7225,-122.4885,0.092602,#a6cee3
+Outer Mission,37.7239,-122.4439,0.10242,#1f78b4
+West Of Twin Peaks,37.7373,-122.4589,0.12473,#b2df8a
+Bayview,37.73,-122.3855,0.10309,#33a02c
+Bernal Heights,37.7399,-122.4169,0.20043,#fb9a99
+Castro,37.7624,-122.4348,0.34092,#e31a1c
+Haight,37.7692,-122.4463,0.29559,#fdbf6f
+Mission,37.7589,-122.4153,0.42583,#ff7f00
+Noe,37.7493,-122.433,0.25158,#cab2d6
+Parkside,37.7411,-122.4892,0.092271,#6a3d9a
+Potrero,37.7583,-122.393,0.26353,#ffff99
+South Of Market,37.7764,-122.3994,0.55316,#b15928
+Twin Peaks,37.752,-122.45,0.13105,#8dd3c7
+Western Addition,37.7804,-122.4332,0.41192,#ffffb3
+Inner Richmond,37.7802,-122.4652,0.21194,#bebada
+Outer Richmond,37.778,-122.4928,0.18916,#fb8072
+Outer Sunset,37.7553,-122.4938,0.12363,#80b1d3
+Seacliff,37.7841,-122.5009,0.091937,#fdb462
+Golden Gate Park,37.7689,-122.4828,0.15941,#b3de69
+Chinatown,37.7941,-122.407,0.24273,#fccde5
+Downtown,37.7835,-122.4158,0.44235,#d9d9d9
+Financial District,37.7915,-122.3988,0.49915,#bc80bd
+Ocean View,37.7178,-122.4622,0.076638,#ccebc5

@@ -1,0 +1,14 @@
+import pandas as pd 
+from random import randint
+data = pd.read_csv('PrIS_data.csv')
+
+entire_data = []
+
+for j in range(0,15):
+    data['sla']   = [randint(300,1000)/10.0 for p in range(0,len(data))]
+    data['production']   = [randint(0,100) for p in range(0,len(data))]
+    entire_data.append(data)
+
+PrIS_data = pd.concat(entire_data,ignore_index=True)
+
+PrIS_data.to_csv('PrIS_data_detail.csv',index=False)

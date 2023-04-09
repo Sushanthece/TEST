@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+</style>
+</head>
+<body>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<script type="text/javascript" src="js/cloud.js"></script>
+<link href="css/tipsy.css" rel="stylesheet" type="text/css" />
+
+<div id="chartContainer">
+      <div id="chart1"></div>
+</div>
+
+<script>
+
+function progressChar(config,value){
+    var twoPi = 2 * Math.PI;
+            
+var elementId = config.chartSetting.elementId;
+
+var margin = config.chartSetting.margin
+    width = config.chartSetting.width - margin.left - margin.right,
+    height = config.chartSetting.height - margin.top - margin.bottom,
+    colorArray = config.chartSetting.colorArray;
+            
+
+    var progress_bar_svg = d3.select("#"+elementId).append("svg")
+            .attr("width", "100%")
+            .attr("data-height","0.54")
+            .attr("viewBox","0 0 "+(width)+" "+(height))
+            .attr("version", '1.1')
+            .append("g")
+            .attr("transform", "translate(" + width/2 + "," + height*7/12+ ")");
+        
+    fontSize = 16;
+
+    var arcs = d3.svg.arc()
+                .innerRadius(d3.min([width,height])*.32)
+                .outerRadius(d3.min([width,height])*.4)
+                .startAngle(0);
+
+    var background = progress_bar_svg
+                    .append("path")
+                    .datum({ endAngle : twoPi})
+                    .style("fill", "#ddd")
+                    .attr("d", arcs);
+
+    var foreground = progress_bar_svg
+                        .append("path")
+                        .datum({ endAngle : 0})
+                        .style("fill", '#6c0')
+                        .attr("class", "foreground")
+                        .attr("d", arcs);
+
+        foreground
+            .transition()
+            .delay(1000)
+            .duration(500)
+            .ease("linear")
+            .attrTween("d", function(d) {
+            var interpolate = d3.interpolate(d.endAngle, twoPi * value)
+            return function(t) {
+            d.endAngle = interpolate(t);
+            return arcs(d);
+        }
+        });
+
+    var text = progress_bar_svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("dy", ".35em")
+                .style("fill", "rgb(99, 99, 99)")
+                .attr("font-size", fontSize)
+                .text((value*100)+ "%");
+
+    $('text,path').tipsy({ 
+                gravity: 'w', 
+                html: true, 
+                title: function() {
+                  return (value*100)+ "%";
+                }
+         });
+}          
+
+
+var config = {
+    chartSetting: {
+        elementId: "chart1",
+        adaptive: "true",
+        width: 960,
+        height: 400,
+        margin: {
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10 },
+        colorArray: ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+    }
+}
+
+progressChar(config, .45);
+
+</script> 
+</body>
+</html>
+

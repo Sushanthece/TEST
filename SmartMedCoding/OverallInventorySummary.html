@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+
+<head>
+
+    <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+    <script type="text/javascript" src="js/jquery.tipsy.js"></script>
+    <script type="text/javascript" src="js/d3.v3.min.js"></script>
+    <script type="text/javascript" src="js/jquery.multiple.select.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/json2.js"></script>
+    <script type="text/javascript" src="js/jspdf.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/moment.min.js"></script>
+    <script type="text/javascript" src="js/daterangepicker.js"></script>
+
+
+    <link rel="stylesheet" type="text/css" media="screen" href="css/multiple-select.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/basic.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/feature.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/custom.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/multiple-select.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css//daterangepicker.css" />
+
+    <!-- Include Date Range Picker -->
+
+    <link rel="icon" type="image/png" href="images/favicon.ico">
+</head>
+
+<body>
+    <br /><br /><br /><br />
+    <div class="container">
+        <div class="row">
+            <div class="tab">
+                <button class="tablinks active" onclick="openCity(event, 'OverallReport')">Inventory Summary by Status</button>
+                <button class="tablinks" onclick="openCity(event, 'FacilityStatusReport')">Inventory Summary by Facility</button>
+                <button class="tablinks" onclick="openCity(event, 'TATStatusReport')">Inventory Summary by TAT</button>
+            </div>
+
+            <div id="OverallReport" class="tabcontent">
+                <div class="container-fluid detail_percent_display">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="chart">
+                                    <div class="col-md-12 panel-body">
+                                        <p class="form-inline header_form">
+                                            <label value="input_date">Date Range:</label>
+                                            <input type="text" name="daterange" class="dateRange" id="OverallReportdatepicker" readonly />
+
+                                            <label value="Specialty">Specialty: </label>
+                                            <select multiple="multiple" id="OverallReportSpeciality" class="Speciality OverallReportmultiple"></select>
+
+                                            <label value="Facility">Facility: </label>
+                                            <select multiple="multiple" id="OverallReportFacility" class="Facility OverallReportmultiple"></select>
+
+                                            <label value="Groupby">Group By: </label>
+                                            <select id="OverallReportGroupby" class="select_Groupby"></select>
+
+                                            <label value="Chartby">Chart : </label>
+                                            <select id="OverallReportChartby" class="select_Chart">
+                                                <option value="multiLine" class="name" selected="">Multi Line Series</option>
+                                                <option value="horizontalGroupBar" class="name" selected="">Horizontal Group Bar</option>
+                                                <option value="groupBar" class="name" selected="">Group Bar</option>
+                                                <option value="groupBarPlusLine" class="name" selected="">Group Bar Plus Line</option>
+                                            </select>
+
+                                            <input type="button" value="Submit" class="OverallReportGroupby_options btn btn-default"></input>
+                                            &nbsp;&nbsp;&nbsp;
+                                            <button type="button" id="OverallReportPDF" align="right" value="submit" class="fa fa-file-pdf-o"></button>
+                                            <a id="OverallReportCSV"><button id="OverallReportBTN" class="fa fa-file-excel-o" aria-hidden="true"></button></a>
+                                        </p>
+                                        <hr class="linesep" />
+                                        <div id="OverallReportchart" style="height: 440px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="FacilityStatusReport" class="tabcontent">
+                <div class="container-fluid detail_percent_display">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="chart">
+                                    <div class="col-md-12 panel-body">
+                                        <p class="form-inline header_form">
+                                            <label value="input_date">Date Range:</label>
+                                            <input type="text" name="daterange" class="dateRange" id="FacilityStatusReportdatepicker" readonly />
+
+                                            <label value="Specialty">Specialty: </label>
+                                            <select multiple="multiple" id="FacilityStatusReportSpeciality" class="Speciality FacilityStatusReportmultiple"></select>
+
+                                            <label value="Facility">Facility: </label>
+                                            <select multiple="multiple" id="FacilityStatusReportFacility" class="Facility FacilityStatusReportmultiple"></select>
+
+                                            <label value="Groupby">Group By: </label>
+                                            <select id="FacilityStatusReportGroupby" class="select_Groupby"></select>
+
+                                            <label value="Chartby">Chart : </label>
+                                            <select id="FacilityStatusReportChartby" class="select_Chart">
+                                                <option value="multiLine" class="name" selected="">Multi Line Series</option>
+                                                <option value="horizontalGroupBar" class="name" selected="">Horizontal Group Bar</option>
+                                                <option value="groupBar" class="name" selected="">Group Bar</option>
+                                                <option value="stackedBar" class="name" selected="">Stacked Bar</option>    
+                                            </select>
+
+                                            <input type="button" value="Submit" class="FacilityStatusReportGroupby_options btn btn-default"></input>
+                                            &nbsp;&nbsp;&nbsp;
+                                            <button type="button" id="FacilityStatusReportPDF" align="right" value="submit" class="fa fa-file-pdf-o"></button>
+                                            <a id="FacilityStatusReportCSV">
+                                                <button id="FacilityStatusReportBTN" class="fa fa-file-excel-o" aria-hidden="true"></button>
+                                            </a>
+
+                                        </p>
+                                        <hr class="linesep" />
+                                        <div id="FacilityStatusReportchart" style="height: 440px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="TATStatusReport" class="tabcontent">
+                <div class="container-fluid detail_percent_display">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="chart">
+                                    <div class="col-md-12 panel-body">
+                                        <p class="form-inline header_form">
+                                            <label value="input_date">Date Range:</label>
+                                            <input type="text" name="daterange" class="dateRange" id="TATStatusReportdatepicker" readonly />
+
+                                            <label value="Specialty">Specialty: </label>
+                                            <select multiple="multiple" id="TATStatusReportSpeciality" class="Speciality TATStatusReportmultiple"></select>
+
+                                            <label value="Facility">Facility: </label>
+                                            <select multiple="multiple" id="TATStatusReportFacility" class="Facility TATStatusReportmultiple"></select>
+
+                                            <label value="Groupby">Group By: </label>
+                                            <select id="TATStatusReportGroupby" class="select_Groupby"></select>
+
+                                            <label value="Chartby">Chart : </label>
+                                            <select id="TATStatusReportChartby" class="select_Chart">
+                                                <option value="multiLine" class="name" selected="">Multi Line Series</option>
+                                                <option value="horizontalGroupBar" class="name" selected="">Horizontal Group Bar</option>
+                                                <option value="groupBar" class="name" selected="">Group Bar</option>
+                                                <option value="groupBarPlusLine" class="name" selected="">Group Bar Plus Line</option>
+                                            </select>
+
+                                            <input type="button" value="Submit" class="TATStatusReportGroupby_options btn btn-default"></input>
+                                            &nbsp;&nbsp;&nbsp;
+                                            <button type="button" id="TATStatusReportPDF" align="right" value="submit" class="fa fa-file-pdf-o"></button>
+                                            <a id="TATStatusReportCSV"><button id="TATStatusReporttBTN" class="fa fa-file-excel-o" aria-hidden="true"></button></a>
+
+                                        </p>
+                                        <hr class="linesep" />
+                                        <div id="TATStatusReportchart" style="height: 440px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function oJSONToCSVConvertor(JSONDataValue, Report_Name) {
+
+            var JSONData = JSON.stringify(JSONDataValue)
+
+
+            //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
+            var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
+
+            var CSV = '';
+            //This condition will generate the Label/Header
+
+            var row = "";
+
+            if (arrData[0] != undefined) {
+
+                if (arrData[0][0] == undefined) {
+                    //This loop will extract the label from 1st index of on array
+                    for (var index in arrData[0]) {
+                        //Now convert each value to string and comma-seprated
+                        row += index + ',';
+                    }
+                    row = row.slice(0, -1);
+                    //append Label row with line break
+                    CSV += row + '\r\n';
+
+
+                    //1st loop is to extract each row
+                    for (var i = 0; i < arrData.length; i++) {
+                        var row = "";
+                        //2nd loop will extract each column and convert it in string comma-seprated
+                        for (var index in arrData[i]) {
+                            row += '"' + arrData[i][index] + '",';
+                        }
+                        row.slice(0, row.length - 1);
+                        //add a line break after each row
+                        CSV += row + '\r\n';
+                    }
+
+                    if (CSV == '') {
+                        alert("Invalid data");
+                        return;
+                    }
+
+                    var csv = CSV;
+                    blob = new Blob([csv], {
+                        type: 'text/csv'
+                    });
+                    var csvUrl = window.URL.createObjectURL(blob);
+                    var filename = 'OverallReport.csv';
+
+                    $("#OverallReportCSV").attr({
+                        'download': filename,
+                        'href': csvUrl
+                    });
+                }
+
+            }
+        }
+
+
+        function fJSONToCSVConvertor(JSONDataValue, Report_Name) {
+
+            var JSONData = JSON.stringify(JSONDataValue)
+
+            //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
+            var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
+            var CSV = '';
+            //This condition will generate the Label/Header
+
+            var row = "";
+
+            if (arrData[0] != undefined) {
+
+                if (arrData[0][0] == undefined) {
+                    //This loop will extract the label from 1st index of on array
+                    for (var index in arrData[0]) {
+                        //Now convert each value to string and comma-seprated
+                        row += index + ',';
+                    }
+                    row = row.slice(0, -1);
+                    //append Label row with line break
+                    CSV += row + '\r\n';
+
+
+                    //1st loop is to extract each row
+                    for (var i = 0; i < arrData.length; i++) {
+                        var row = "";
+                        //2nd loop will extract each column and convert it in string comma-seprated
+                        for (var index in arrData[i]) {
+                            row += '"' + arrData[i][index] + '",';
+                        }
+                        row.slice(0, row.length - 1);
+                        //add a line break after each row
+                        CSV += row + '\r\n';
+                    }
+
+                    if (CSV == '') {
+                        alert("Invalid data");
+                        return;
+                    }
+
+                    var csv = CSV;
+                    blob = new Blob([csv], {
+                        type: 'text/csv'
+                    });
+                    var csvUrl = window.URL.createObjectURL(blob);
+                    var filename = 'FacilityStatusReport.csv';
+
+                    $("#FacilityStatusReportCSV").attr({
+                        'download': filename,
+                        'href': csvUrl
+                    });
+                }
+
+            }
+        }
+
+
+        function tJSONToCSVConvertor(JSONDataValue, Report_Name) {
+
+            var JSONData = JSON.stringify(JSONDataValue)
+
+            //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
+            var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
+            var CSV = '';
+            //This condition will generate the Label/Header
+
+            var row = "";
+
+            if (arrData[0] != undefined) {
+
+                if (arrData[0][0] == undefined) {
+                    //This loop will extract the label from 1st index of on array
+                    for (var index in arrData[0]) {
+                        //Now convert each value to string and comma-seprated
+                        row += index + ',';
+                    }
+                    row = row.slice(0, -1);
+                    //append Label row with line break
+                    CSV += row + '\r\n';
+
+
+                    //1st loop is to extract each row
+                    for (var i = 0; i < arrData.length; i++) {
+                        var row = "";
+                        //2nd loop will extract each column and convert it in string comma-seprated
+                        for (var index in arrData[i]) {
+                            row += '"' + arrData[i][index] + '",';
+                        }
+                        row.slice(0, row.length - 1);
+                        //add a line break after each row
+                        CSV += row + '\r\n';
+                    }
+
+                    if (CSV == '') {
+                        alert("Invalid data");
+                        return;
+                    }
+
+                    var csv = CSV;
+                    blob = new Blob([csv], {
+                        type: 'text/csv'
+                    });
+                    var csvUrl = window.URL.createObjectURL(blob);
+                    var filename = 'TATStatusReport.csv';
+
+                    $("#TATStatusReportCSV").attr({
+                        'download': filename,
+                        'href': csvUrl
+                    });
+                }
+
+            }
+        }
+
+        $("#OverallReportPDF").click(function() {
+
+            var html = d3.select('#OverallReportchart').select("svg")
+                .attr("version", 1.1)
+                .attr("xmlns", "http://www.w3.org/2000/svg")
+                .node().parentNode.innerHTML;
+
+            var imgsrc = 'data:image/svg+xml;base64,' + btoa(html);
+
+            var image = new Image();
+            image.src = imgsrc;
+            image.width = 960;
+            image.height = 500;
+            image.onload = function() {
+                var canvas = document.createElement('canvas');
+                canvas.width = image.width;
+                canvas.height = image.height;
+                canvas.style = "border:1px solid #c3c3c3;background-color:#fff";
+
+                var context = canvas.getContext('2d');
+                context.drawImage(image, 0, 40);
+                var dataURL = canvas.toDataURL();
+                var pdf = new jsPDF('l', 'mm', [297, 210]);
+                pdf.addImage(dataURL, 'JPEG', 22, 37);
+
+                pdf.text(95, 20, 'Inventory Summary by Status');
+                pdf.save("Overall Report.pdf");
+
+            }
+        });
+
+        $("#FacilityStatusReportPDF").click(function() {
+
+            var html = d3.select('#FacilityStatusReportchart').select("svg")
+                .attr("version", 1.1)
+                .attr("xmlns", "http://www.w3.org/2000/svg")
+                .node().parentNode.innerHTML;
+
+            var imgsrc = 'data:image/svg+xml;base64,' + btoa(html);
+
+            var image = new Image();
+            image.src = imgsrc;
+            image.width = 960;
+            image.height = 500;
+            image.onload = function() {
+                var canvas = document.createElement('canvas');
+                canvas.width = image.width;
+                canvas.height = image.height;
+                canvas.style = "border:1px solid #c3c3c3;background-color:#fff";
+
+                var context = canvas.getContext('2d');
+                context.drawImage(image, 0, 40);
+                var dataURL = canvas.toDataURL();
+                var pdf = new jsPDF('l', 'mm', [297, 210]);
+                pdf.addImage(dataURL, 'JPEG', 22, 37);
+
+                pdf.text(115, 20, 'Inventory Summary by Facility');
+                pdf.save("Facility Status Report.pdf");
+
+            }
+        });
+
+
+        $("#TATStatusReportPDF").click(function() {
+
+            var html = d3.select('#TATStatusReportchart').select("svg")
+                .attr("version", 1.1)
+                .attr("xmlns", "http://www.w3.org/2000/svg")
+                .node().parentNode.innerHTML;
+
+            var imgsrc = 'data:image/svg+xml;base64,' + btoa(html);
+
+            var image = new Image();
+            image.src = imgsrc;
+            image.width = 960;
+            image.height = 500;
+            image.onload = function() {
+                var canvas = document.createElement('canvas');
+                canvas.width = image.width;
+                canvas.height = image.height;
+                canvas.style = "border:1px solid #c3c3c3;background-color:#fff";
+
+                var context = canvas.getContext('2d');
+                context.drawImage(image, 0, 40);
+                var dataURL = canvas.toDataURL();
+                var pdf = new jsPDF('l', 'mm', [297, 210]);
+                pdf.addImage(dataURL, 'JPEG', 22, 37);
+
+                pdf.text(115, 20, 'Inventory Summary by TAT');
+                pdf.save("TAT Status Report.pdf");
+
+            }
+        });
+
+
+        function addThousandsSeparator(input) {
+            var output = input
+            if (parseFloat(input)) {
+                input = new String(input);
+                var parts = input.split(".");
+                parts[0] = parts[0].split("").reverse().join("").replace(/(\d{3})(?!$)/g, "$1,").split("").reverse().join("");
+                output = parts.join(".");
+            }
+            return output;
+        }
+
+
+        function stackedBar(config, data, variable, Report_Name) {
+
+            var elementId = config.chartSetting.elementId;
+            var variables = config.chartSetting.variable;
+
+            var height = config.chartSetting.height
+            var width = config.chartSetting.width
+
+            var margin = config.chartSetting.margin,
+                width = width - margin.left - margin.right,
+                height = height - margin.top - margin.bottom,
+                colorArray = config.chartSetting.colorArray;
+
+            var chartSetting_cols = config.chartSetting.columns;
+
+            var x = d3.scale.ordinal()
+                .rangeRoundBands([0, width], .1);
+
+            var y = d3.scale.linear()
+                .rangeRound([height, 0]);
+
+            var color = d3.scale.ordinal().range(colorArray);
+
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom");
+
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left")
+                .tickFormat(d3.format(".2s"));
+
+            d3.select('#' + elementId).select('svg').remove();
+
+            var svg = d3.select("#" + elementId).append("svg")
+                .attr("viewBox", "0 0 " + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            function fade(t, a) {
+                layer.filter(function(r) {
+                    return r[0].type.replace(" ", "_").replace(" ", "_") != a
+                }).style("opacity", t)
+            }
+
+            var layers = d3.layout.stack()(chartSetting_cols.map(function(c) {
+                return data.map(function(d) {
+                    return {
+                        x: d[variable],
+                        y: d[c],
+                        type: c
+                    };
+                });
+            }));
+
+            x.domain(layers[0].map(function(d) {
+                return d.x;
+            }));
+            y.domain([0, d3.max(layers[layers.length - 1], function(d) {
+                return d.y0 + d.y;
+            })]).nice();
+
+
+            var layer = svg.selectAll(".layer")
+                .data(layers)
+                .enter().append("g")
+                .attr("class", "layer")
+                .style("fill", function(d, i) {
+                    return color(i);
+                })
+                .style("stroke", function(d, i) {
+                    return d3.rgb(color(i)).darker();
+                });
+
+            layer.selectAll("rect")
+                .data(function(d) {
+                    return d;
+                })
+                .enter().append("rect")
+                .attr("class", "layer_rect")
+                .attr("x", function(d) {
+                    return x.rangeBand() > 60 ? x(d.x) + ((x.rangeBand() - 59) / 2) : x(d.x);
+                })
+                .attr("y", function(d) {
+                    return y(d.y + d.y0);
+                })
+                .attr("height", function(d) {
+                    return y(d.y0) - y(d.y + d.y0);
+                })
+                .attr("width", x.rangeBand() > 60 ? 59 : x.rangeBand() - 1);
+
+            xaxis_legends = svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + (height) + ")")
+                .call(xAxis);
+
+            xaxis_legends.selectAll("text")
+                .attr("y", 14)
+                .attr("x", 0)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .attr("transform", "rotate(-40)")
+                .attr("font-size", x.rangeBand() > 12 ? '12px' : x.rangeBand() + 'px')
+                //.text(function (d) { return d.length > Math.floor(x.rangeBand() / 5) ? d.substring(0, Math.floor(x.rangeBand() / 5)) + '..' : d })
+                .text(function(d) {
+                    return d
+                });
+
+
+            xaxis_legends.append("text")
+                .attr("class", "value")
+                .attr("transform", "translate(" + (width) + ",0)")
+                .attr("x", 16)
+                .attr("y", 5)
+                .style("text-anchor", "start")
+                .text($('#' + Report_Name + 'Groupby').val().replace("_", " "));
+
+            svg.append("g")
+                .attr("class", "axis axis--y")
+                .call(yAxis).append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("No of Accounts");
+
+            // Draw legend
+            var legend = svg.selectAll(".legend")
+                .data(chartSetting_cols)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(30," + i * 22 + ")";
+                });
+
+            legend.append("rect")
+                .attr("x", width - 3)
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("stroke", function(d, i) {
+                    return d3.rgb(color(i)).darker()
+                })
+                .attr("fill", function(d, i) {
+                    return color(i)
+                })
+                .attr("rx", 2)
+                .on("mouseover", function(t) {
+                    return fade(.1, t.replace(" ", "_").replace(" ", "_"))
+                })
+                .on("mouseout", function(t) {
+                    return fade(1, t.replace(" ", "_").replace(" ", "_"))
+                });
+
+            legend.append("text")
+                .attr("x", width + 20)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "start")
+                .text(function(d) {
+                    return d.length > 25 ? d.substring(0, 23).replace("_", " ") + '..' : d.replace("_", " ")
+                });
+
+
+            $('.layer_rect').tipsy({
+                gravity: 'w',
+                html: true,
+                title: function() {
+                    var d = this.__data__;
+                    return "Type : " + d.type.replace("_", " ") + ' <br/> ' + variable.replace("_", " ") + ' : ' + d.x + ' <br/> Value : ' + addThousandsSeparator(d.y)
+                }
+            });
+
+            $('.axis path,.axis line,.axis1 path,.axis1 line').css({
+                'fill': 'none',
+                'stroke': '#000',
+                'shape-rendering': 'crispEdges'
+            });
+            $('text').css({
+                'font': '10px sans-serif'
+            });
+
+        }
+
+        function multiLine(config, data, variable, Report_Name) {
+
+            var elementId = config.chartSetting.elementId;
+            var variables = config.chartSetting.variable;
+
+            var chartSetting_cols = config.chartSetting.columns;
+
+            var height = config.chartSetting.height
+            var width = config.chartSetting.width
+
+            var margin = config.chartSetting.margin,
+                width = width - margin.left - margin.right,
+                height = height - margin.top - margin.bottom,
+                colorArray = config.chartSetting.colorArray;
+
+            d3.select('#' + elementId).select('svg').remove();
+
+            var svg = d3.select("#" + elementId).append("svg")
+                .attr("viewBox", "0 0 " + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var xScale = d3.scale.ordinal()
+                .rangeRoundBands([0, width], .1);
+
+            var yScale = d3.scale.linear()
+                .domain([0, 10])
+                .range([height, 0]);
+
+            var color = d3.scale.ordinal()
+                .range(colorArray);
+
+            var xAxis = d3.svg.axis().
+            scale(xScale)
+                .orient("bottom")
+                .ticks(7);
+
+            var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left")
+                .ticks(5)
+                .tickFormat(d3.format(".2s"));
+
+            color.domain(chartSetting_cols);
+
+            var data2 = data;
+            var categories = color.domain().map(function(name) {
+                return {
+                    name: name,
+                    values: data.map(function(d) {
+                        if (d[name] == 0) {
+                            d[name] = 0.1;
+                        }
+                        return {
+                            variable: d[variable],
+                            rating: +(d[name]),
+                            visible: (true),
+                            name: name,
+                        };
+                    }),
+                    visible: (true)
+                };
+            });
+
+            xScale.domain(data.map(function(d) {
+                return d[variable];
+            }));
+
+            category_max = d3.max(categories, function(c) {
+                return d3.max(c.values, function(v) {
+                    return v.rating;
+                });
+            })
+
+            yScale.domain([0, category_max]);
+
+
+            xaxis_legends = svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + (height) + ")")
+                .call(xAxis);
+
+            xaxis_legends.selectAll("text")
+                .attr("y", 14)
+                .attr("x", 0)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .attr("transform", "rotate(-40)")
+                .attr("font-size", xScale.rangeBand() > 12 ? '12px' : xScale.rangeBand() + 'px')
+                //.text(function (d) { return d.length > Math.floor(xScale.rangeBand() / 5) ? d.substring(0, Math.floor(xScale.rangeBand() / 5)) + '..' : d })
+                .text(function(d) {
+                    return d
+                });
+            xaxis_legends.append("text")
+                .attr("class", "value")
+                .attr("transform", "translate(" + (width) + ",0)")
+                .attr("dy", ".71em")
+                .attr("y", -12)
+                .style("text-anchor", "end")
+                .text($('#' + Report_Name + 'Groupby').val().replace("_", " "));
+
+
+            svg.append("g")
+                .attr("class", "y axis noSelect")
+                .call(yAxis).append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("No of Accounts");
+
+            var line = d3.svg.line()
+                .x(function(d) {
+                    return xScale(d.variable);
+                })
+                .y(function(d) {
+                    return yScale(d.rating);
+                })
+                .defined(function(d) {
+                    return d.rating;
+                });
+
+            var issue = svg.selectAll(".issue")
+                .data(categories)
+                .enter().append("g")
+                .attr("class", "issue");
+
+            issue.append("path")
+                .attr("class", "line")
+                .style("pointer-events", "none")
+                .attr("stroke-width", 2)
+                .attr("transform", "translate(" + ((xScale.rangeBand() / 2)) + ", 0)")
+                .attr("id", function(d) {
+                    return "line-" + d.name.replace(" ", "").replace("/", "");
+                })
+                .attr("d", function(d) {
+                    if (d.values.rating == 0) {
+                        d.values.rating = 0.1;
+                    };
+                    return d.visible ? line(d.values) : null;
+                }).attr("clip-path", "url(#clip)").style("stroke", function(d) {
+                    return color(d.name);
+                });
+
+            // what to do when we mouse over a bubble
+            var mouseOn = function() {
+                var circle = d3.select(this);
+
+                // transition to increase size/opacity of bubble
+                circle.transition()
+                    .duration(800).style("opacity", 1)
+                    .attr("r", 12).ease("elastic");
+
+                // append lines to bubbles that will be used to show the precise data points.
+                // translate their location based on margins
+                svg.append("g")
+                    .attr("class", "guide")
+                    .append("line")
+                    .attr('stroke-width', '1')
+                    .attr("x1", circle.attr("cx"))
+                    .attr("x2", circle.attr("cx"))
+                    .attr("y1", circle.attr("cy"))
+                    .attr("y2", height)
+                    .style("stroke", circle.style("fill"))
+                    .transition().delay(200).duration(400).styleTween("opacity",
+                        function() {
+                            return d3.interpolate(0, 1);
+                        })
+
+                svg.append("g")
+                    .attr("class", "guide")
+                    .append("line")
+                    .attr('stroke-width', '1')
+                    .attr("x1", circle.attr("cx"))
+                    .attr("x2", 0)
+                    .attr("y1", circle.attr("cy"))
+                    .attr("y2", circle.attr("cy"))
+                    .style("stroke", circle.style("fill"))
+                    .transition().delay(200).duration(400).styleTween("opacity",
+                        function() {
+                            return d3.interpolate(0, 1);
+                        });
+
+                // function to move mouseover item to front of SVG stage, in case
+                // another bubble overlaps it
+                d3.selection.prototype.moveToFront = function() {
+                    return this.each(function() {
+                        this.parentNode.appendChild(this);
+                    });
+                };
+            };
+            // what happens when we leave a bubble?
+            var mouseOff = function() {
+                var circle = d3.select(this);
+
+                // go back to original size and opacity
+                circle.transition()
+                    .duration(800).style("opacity", 1)
+                    .attr("r", 6).ease("elastic");
+
+                // fade out guide lines, then remove them
+                d3.selectAll(".guide").transition().duration(100).styleTween("opacity",
+                        function() {
+                            return d3.interpolate(1, 0);
+                        })
+                    .remove()
+            };
+
+            function fade(t, a) {
+                issue.filter(function(r) {
+                    return r.name.replace(" ", "_").replace(" ", "_") != a
+                }).style("opacity", t)
+            }
+
+            issue.selectAll("circle")
+                .data(function(d) {
+                    return d.values
+                })
+                .enter().append("circle")
+                .attr("r", function(d) {
+                    return d.visible ? 6 : 0;
+                })
+                .attr("cx", function(d) {
+                    return xScale(d.variable) + (xScale.rangeBand() / 2);
+                })
+                .attr("cy", function(d) {
+                    return yScale(d.rating);
+                })
+                .style("fill", function(d) {
+                    return color(d.name);
+                })
+                .attr("stroke", function(d, i) {
+                    return d3.rgb(color(d.name)).darker()
+                })
+                .on("mouseover", mouseOn)
+                .on("mouseout", mouseOff);
+
+            $('circle').tipsy({
+                gravity: 'w',
+                html: true,
+                title: function() {
+                    var d = this.__data__;
+                    return variable.replace("_", " ") + ' : ' + d.variable + ' <br/>' + d.name.replace("_", " ") + ' : ' + addThousandsSeparator(d.rating)
+                }
+            });
+
+            // Draw legend
+            var legend = svg.selectAll(".legend")
+                .data(chartSetting_cols)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(30," + i * 22 + ")";
+                });
+
+            legend.append("rect")
+                .attr("x", width - 3)
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("stroke", function(d, i) {
+                    return d3.rgb(color(d)).darker()
+                })
+                .attr("fill", function(d, i) {
+                    return color(d)
+                })
+                .attr("rx", 2)
+                .on("mouseover", function(t) {
+                    return fade(.1, t.replace(" ", "_").replace(" ", "_"))
+                })
+                .on("mouseout", function(t) {
+                    return fade(1, t.replace(" ", "_").replace(" ", "_"))
+                });
+
+            legend.append("text")
+                .attr("x", width + 20)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "start")
+                .text(function(d) {
+                    return d.length > 25 ? d.substring(0, 23).replace("_", " ") + '..' : d.replace("_", " ")
+                });
+
+            $('.axis path,.axis line,.axis1 path,.axis1 line').css({
+                'fill': 'none',
+                'stroke': '#000',
+                'shape-rendering': 'crispEdges'
+            });
+            $('.line').css({
+                'fill': 'none'
+            });
+            $('text').css({
+                'font': '10px sans-serif'
+            });
+
+        }
+
+        function horizontalGroupBar(config, data, variable, Report_Name) {
+
+            var elementId = config.chartSetting.elementId;
+            var variables = config.chartSetting.variable;
+
+            var height = config.chartSetting.height
+            var width = config.chartSetting.width
+
+
+            var margin = config.chartSetting.margin,
+                width = width - margin.left - margin.right,
+                height = height - margin.top - margin.bottom,
+                colorArray = config.chartSetting.colorArray;
+
+            var chartSetting_cols = config.chartSetting.columns;
+
+            d3.select('#' + elementId).select('svg').remove();
+
+            var svg = d3.select("#" + elementId).append("svg")
+                .attr("viewBox", "0 0 " + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var layers = d3.layout.stack()(chartSetting_cols.map(function(period, index) {
+                return data.map(function(d) {
+                    return {
+                        x: d[variable],
+                        y: parseFloat(d[period]),
+                        value: parseFloat(d[period]),
+                        name: period,
+                        sub_group: index
+                    };
+
+                });
+            }));
+
+            var yGroupMax = d3.max(layers, function(layer) {
+                return d3.max(layer, function(d) {
+                    return d.y;
+                });
+            });
+
+            var y = d3.scale.ordinal()
+                .domain(layers[0].map(function(d) {
+                    return d.x;
+                }))
+                .rangeRoundBands([0, height], .1);
+
+            var y1 = d3.scale.ordinal();
+
+            y1.domain(chartSetting_cols).rangeRoundBands([0, y.rangeBand() > 50 ? 50 : y.rangeBand()]);
+
+            height_band = y.rangeBand() > 60 ? 60 : y.rangeBand()
+
+
+            var x = d3.scale.linear()
+                .domain([0, yGroupMax])
+                .range([0, width]);
+
+            var color = d3.scale.ordinal()
+                .range(colorArray);
+
+            color.domain(chartSetting_cols);
+
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom")
+                .ticks(7)
+                .tickFormat(d3.format(".2s"));
+
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left");
+
+            var layer = svg.selectAll(".layer")
+                .data(layers)
+                .enter().append("g")
+                .attr("class", "layer");
+
+            var rect = layer.selectAll("rect")
+                .data(function(d) {
+                    return d;
+                })
+                .enter().append("rect")
+                .attr("class", "group_bar")
+                .attr("y", function(d) {
+                    return y.rangeBand() > 60 ? ((y.rangeBand() - 60) / 2) + (y(d.x) + (d.sub_group * height_band / chartSetting_cols.length)) : y(d.x) + (d.sub_group * height_band / chartSetting_cols.length);
+                })
+                .attr("height", (height_band / (chartSetting_cols.length)) - 2)
+                .attr("x", 0)
+                .attr("width", function(d) {
+                    return x(d.y);
+                })
+                .style("fill", function(d) {
+                    return color(d.name);
+                })
+                .style("stroke", function(d) {
+                    return d3.rgb(color(d.name)).darker();
+                })
+                //.attr('stroke', '#fff')
+                .attr("data-title", function(d) {
+                    return d.x + ',' + d.name + ' ' + d.value
+                })
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis).append("text")
+                .attr("transform", "translate(" + (width) + ",0)")
+                .attr("y", -12)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("No of Accounts");
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis).selectAll("text")
+                //.attr("y", 14)
+                //.attr("x", 0)
+                .attr("dy", ".35em")
+                // .attr("transform", "rotate(90)")
+                .style("text-anchor", "end")
+                .style("font-size", y.rangeBand() > 9 ? '9px' : y.rangeBand() + 'px')
+                //.text(function (d) { return d.length > Math.floor(y.rangeBand() / 2.5) ? d.substring(0, Math.floor(y.rangeBand() / 2.5)) + '..' : d });
+                .text(function(d) {
+                    return d
+                });
+
+            function fade(opacity, name) {
+                rect
+                    .filter(function(d) {
+                        return d.name.replace(" ", "_").replace(" ", "_") != name;
+                    })
+                    .style("opacity", opacity);
+            }
+
+            var legend = svg.selectAll(".legend")
+                .data(chartSetting_cols)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(30," + i * 22 + ")";
+                });
+
+            legend.append("rect")
+                .attr("x", width - 3)
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("stroke", function(d, i) {
+                    return d3.rgb(color(d)).darker()
+                })
+                .attr("fill", function(d, i) {
+                    return color(d)
+                })
+                .attr("rx", 2)
+                .on("mouseover", function(t) {
+                    return fade(.1, t.replace(" ", "_").replace(" ", "_"))
+                })
+                .on("mouseout", function(t) {
+                    return fade(1, t.replace(" ", "_").replace(" ", "_"))
+                });
+
+            legend.append("text")
+                .attr("x", width + 20)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "start")
+                .text(function(d) {
+                    return d.length > 25 ? d.substring(0, 23).replace("_", " ") + '..' : d.replace("_", " ")
+                });
+
+            $('.group_bar').tipsy({
+                gravity: 'w',
+                html: true,
+                title: function() {
+                    var d = this.__data__;
+                    return variable.replace("_", " ") + ' : ' + d.x + ' <br/>' + d.name.replace("_", " ") + ' : ' + addThousandsSeparator(d.value)
+                }
+            });
+
+            $('.axis path,.axis line,.axis1 path,.axis1 line').css({
+                'fill': 'none',
+                'stroke': '#000',
+                'shape-rendering': 'crispEdges'
+            });
+            $('text').css({
+                'font': '10px sans-serif'
+            });
+
+        }
+
+        function groupBar(config, data, variable, Report_Name) {
+
+            var elementId = config.chartSetting.elementId;
+            var variables = config.chartSetting.variable;
+
+            var height = config.chartSetting.height
+            var width = config.chartSetting.width
+
+            var margin = config.chartSetting.margin,
+                width = width - margin.left - margin.right,
+                height = height - margin.top - margin.bottom,
+                colorArray = config.chartSetting.colorArray;
+
+            var chartSetting_cols = config.chartSetting.columns;
+
+            var x0 = d3.scale.ordinal()
+                .rangeRoundBands([0, width], .1);
+
+            var x1 = d3.scale.ordinal();
+
+            var y = d3.scale.linear()
+                .rangeRound([height, 0]);
+
+            var color = d3.scale.ordinal()
+                .range(colorArray);
+
+            var xAxis = d3.svg.axis()
+                .scale(x0)
+                .orient("bottom");
+
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left")
+                .tickFormat(d3.format(".2s"));
+
+            d3.select('#' + elementId).select('svg').remove();
+
+            var svg = d3.select("#" + elementId).append("svg")
+                .attr("viewBox", "0 0 " + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            color.domain(chartSetting_cols);
+
+            data.forEach(function(d) {
+                var y0 = 0;
+                d.groups = color.domain().map(function(name) {
+                    return {
+                        name: name,
+                        value: +d[name],
+                        groupby: d[variable]
+                    };
+                });
+            });
+
+            x0.domain(data.map(function(d) {
+                return d[variable];
+            }));
+            x1.domain(chartSetting_cols).rangeRoundBands([0, x0.rangeBand() > 75 ? 75 : x0.rangeBand()]);
+            y.domain([0, d3.max(data, function(d) {
+                return d3.max(d.groups, function(d) {
+                    return d.value;
+                });
+            })]);
+
+            xaxis_legends = svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + (height) + ")")
+                .call(xAxis);
+
+            xaxis_legends.selectAll("text")
+                .attr("y", 14)
+                .attr("x", 0)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .attr("transform", "rotate(-40)")
+                .attr("font-size", x0.rangeBand() > 12 ? '12px' : x0.rangeBand() + 'px')
+                //.text(function (d) { return d.length > Math.floor(x0.rangeBand() / 5) ? d.substring(0, Math.floor(x0.rangeBand() / 5)) + '..' : d })
+                .text(function(d) {
+                    return d
+                })
+
+            xaxis_legends.append("text")
+                .attr("class", "value")
+                .attr("transform", "translate(" + (width) + ",0)")
+                .attr("x", 8)
+                .attr("y", 5)
+                .style("text-anchor", "start")
+                .text($('#' + Report_Name + 'Groupby').val().replace("_", " "));
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis).append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("No of Accounts");
+
+            var state = svg.selectAll(".state")
+                .data(data)
+                .enter().append("g")
+                .attr("class", "g")
+                .attr("transform", function(d) {
+                    return "translate(" + x0(d[variable]) + ",0)";
+                });
+
+            function fade(t, a) {
+                $('.group_bar').css("opacity", t);
+                $('.' + a).css("opacity", 1);
+            }
+
+            state.selectAll("rect")
+                .data(function(d) {
+                    return d.groups;
+                })
+                .enter().append("rect")
+                .attr("class", "group_bar")
+                .attr("class", function(d) {
+                    return "group_bar " + d.name.replace(" ", "_").replace(" ", "_")
+                })
+                .attr("width", x1.rangeBand())
+                .attr("x", function(d) {
+                    return x0.rangeBand() > 75 ? ((x0.rangeBand() - 75) / 2) + x1(d.name) : x1(d.name)
+                })
+                .attr("y", function(d) {
+                    return y(d.value);
+                })
+                .attr("data-title", function(d) {
+                    return d.groupby + ',' + d.name + ' ' + d.value
+                })
+                .attr("height", function(d) {
+                    return height - y(d.value);
+                })
+                .attr("fill", function(d) {
+                    return color(d.name);
+                })
+                //.attr("stroke", function (d) { return d3.rgb(color(d.name)).darker(); });
+                .attr('stroke', '#fff');
+
+            var legend = svg.selectAll(".legend")
+                .data(chartSetting_cols)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(30," + i * 22 + ")";
+                });
+
+            legend.append("rect")
+                .attr("x", width - 3)
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("stroke", function(d, i) {
+                    return d3.rgb(color(d)).darker()
+                })
+                .attr("fill", function(d, i) {
+                    return color(d)
+                })
+                .attr("rx", 2)
+                .on("mouseover", function(t) {
+                    return fade(.1, t.replace(" ", "_").replace(" ", "_"))
+                })
+                .on("mouseout", function(t) {
+                    return fade(1, t.replace(" ", "_").replace(" ", "_"))
+                });
+
+            legend.append("text")
+                .attr("x", width + 20)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "start")
+                .text(function(d) {
+                    return d.length > 25 ? d.substring(0, 23).replace("_", " ") + '..' : d.replace("_", " ")
+                });
+
+            $('.group_bar').tipsy({
+                gravity: 'w',
+                html: true,
+                title: function() {
+                    var d = this.__data__;
+                    return variable.replace("_", " ") + ' : ' + d.groupby + ' <br/>' + d.name.replace("_", " ") + ' : ' + addThousandsSeparator(d.value)
+                }
+            });
+
+            $('.axis path,.axis line,.axis1 path,.axis1 line').css({
+                'fill': 'none',
+                'stroke': '#000',
+                'shape-rendering': 'crispEdges'
+            });
+            $('text').css({
+                'font': '10px sans-serif'
+            });
+
+        }
+
+        function groupBarPlusLine(config, data, variable, Report_Name) {
+
+            var elementId = config.chartSetting.elementId;
+            var variables = config.chartSetting.variable;
+
+            var height = config.chartSetting.height
+            var width = config.chartSetting.width
+
+            var line_data = config.chartSetting.line;
+
+            var margin = config.chartSetting.margin,
+                width = width - margin.left - margin.right,
+                height = height - margin.top - margin.bottom,
+                colorArray = config.chartSetting.colorArray;
+
+            var chartSetting_cols = config.chartSetting.columns;
+
+            var x0 = d3.scale.ordinal()
+                .rangeRoundBands([0, width], .1);
+
+            var x1 = d3.scale.ordinal();
+
+            var y = d3.scale.linear()
+                .rangeRound([height, 0]);
+
+            var y1 = d3.scale.linear()
+                .range([height, 0]);
+
+            var color = d3.scale.ordinal()
+                .range(colorArray);
+
+            var xAxis = d3.svg.axis()
+                .scale(x0)
+                .orient("bottom");
+
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left")
+                .tickFormat(d3.format(".2s"));
+
+            var y1Axis = d3.svg.axis()
+                .scale(y1)
+                .orient("right")
+                .ticks(5);
+
+            d3.select('#' + elementId).select('svg').remove();
+
+            var svg = d3.select("#" + elementId).append("svg")
+                .attr("viewBox", "0 0 " + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            color.domain(chartSetting_cols);
+
+            data.forEach(function(d) {
+                var y0 = 0;
+                d.groups = color.domain().map(function(name) {
+                    console.log(name);
+                    console.log(+d[name]);
+                    return {
+                        name: name,
+                        value: +d[name],
+                        groupby: d[variable]
+                    };
+                });
+            });
+
+            x0.domain(data.map(function(d) {
+                return d[variable];
+            }));
+            x1.domain(chartSetting_cols).rangeRoundBands([0, x0.rangeBand() > 75 ? 75 : x0.rangeBand()]);
+            y.domain([0, d3.max(data, function(d) {
+                return d3.max(d.groups, function(d) {
+                    return d.value;
+                });
+            })]);
+            y1.domain([0, d3.max(data, function(d) {
+                return d[line_data];
+            })]).nice();
+
+            // Define the line
+            var valueline = d3.svg.line()
+                .x(function(d) {
+                    return x0(d[variable]);
+                })
+                .y(function(d) {
+                    return y1(d[line_data]);
+                })
+                .defined(function(d) {
+                    return d[line_data];
+                });
+
+            xaxis_legends = svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + (height) + ")")
+                .call(xAxis);
+
+            xaxis_legends.selectAll("text")
+                .attr("y", 14)
+                .attr("x", 0)
+                //.attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .attr("transform", "rotate(-40)")
+                .attr("font-size", x0.rangeBand() > 12 ? '12px' : x0.rangeBand() + 'px')
+                //.text(function (d) { return d.length > Math.floor(x0.rangeBand() / 5) ? d.substring(0, Math.floor(x0.rangeBand() / 5)) + '..' : d })
+                .text(function(d) {
+                    return d
+                })
+
+            xaxis_legends.append("text")
+                .attr("class", "value")
+                .attr("transform", "translate(" + (width) + ",0)")
+                .attr("x", 16)
+                .attr("y", 5)
+                .style("text-anchor", "start")
+                .text($('#' + Report_Name + 'Groupby').val().replace("_", " "));
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis).append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("No of Accounts");
+
+
+            // Add the Y Axis
+            svg.append("g")
+                .attr("class", "axis axis--y1")
+                .attr("transform", "translate(" + width + ",0)")
+                .call(y1Axis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -15)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text(line_data);
+
+            var state = svg.selectAll(".state")
+                .data(data)
+                .enter().append("g")
+                .attr("class", "g")
+                .attr("transform", function(d) {
+                    return "translate(" + x0(d[variable]) + ",0)";
+                });
+
+            function fade(t, a) {
+                $('.group_bar').css("opacity", t);
+                $('.' + a).css("opacity", 1);
+            }
+
+            state.selectAll("rect")
+                .data(function(d) {
+                    return d.groups;
+                })
+                .enter().append("rect")
+                .attr("class", "group_bar")
+                .attr("class", function(d) {
+                    return "group_bar " + d.name.replace(" ", "_").replace(" ", "_")
+                })
+                .attr("width", x1.rangeBand())
+                .attr("x", function(d) {
+                    return x0.rangeBand() > 75 ? ((x0.rangeBand() - 75) / 2) + x1(d.name) : x1(d.name)
+                })
+                .attr("y", function(d) {
+                    return y(d.value);
+                })
+                .attr("data-title", function(d) {
+                    return d.groupby + ',' + d.name + ' ' + d.value
+                })
+                .attr("height", function(d) {
+                    return height - y(d.value);
+                })
+                .attr("fill", function(d) {
+                    return color(d.name);
+                })
+                //.attr("stroke", function (d) { return d3.rgb(color(d.name)).darker(); });
+                .attr('stroke', '#fff');
+
+            // Add the valueline path.
+            svg.append("path")
+                .attr("class", "line")
+                .attr("transform", "translate(" + x0.rangeBand() / 2 + ",0)")
+                .attr("d", valueline(data))
+                .attr("stroke", "black")
+                .attr("stroke-width", 2)
+                .attr("fill", 'none');
+
+            // what to do when we mouse over a bubble
+            var mouseOn = function() {
+                var circle = d3.select(this);
+
+                // transition to increase size/opacity of bubble
+                circle.transition()
+                    .duration(800).style("opacity", 1)
+                    .attr("r", 7).ease("elastic");
+
+                // append lines to bubbles that will be used to show the precise data points.
+                // translate their location based on margins
+                svg.append("g")
+                    .attr("class", "guide")
+                    .append("line")
+                    .attr('stroke-width', '1')
+                    .attr("x1", parseFloat(circle.attr("cx")) + (x0.rangeBand() / 2))
+                    .attr("x2", parseFloat(circle.attr("cx")) + (x0.rangeBand() / 2))
+                    .attr("y1", circle.attr("cy"))
+                    .attr("y2", height)
+                    .style("stroke", circle.style("fill"))
+                    .transition().delay(200).duration(400).styleTween("opacity",
+                        function() {
+                            return d3.interpolate(0, 1);
+                        })
+
+                svg.append("g")
+                    .attr("class", "guide")
+                    .append("line")
+                    .attr('stroke-width', '1')
+                    .attr("x1", parseFloat(circle.attr("cx")) + (x0.rangeBand() / 2))
+                    .attr("x2", width)
+                    .attr("y1", circle.attr("cy"))
+                    .attr("y2", circle.attr("cy"))
+                    .style("stroke", circle.style("fill"))
+                    .transition().delay(200).duration(400).styleTween("opacity",
+                        function() {
+                            return d3.interpolate(0, 1);
+                        });
+
+                // function to move mouseover item to front of SVG stage, in case
+                // another bubble overlaps it
+                d3.selection.prototype.moveToFront = function() {
+                    return this.each(function() {
+                        this.parentNode.appendChild(this);
+                    });
+                };
+            };
+            // what happens when we leave a bubble?
+            var mouseOff = function() {
+                var circle = d3.select(this);
+
+                // go back to original size and opacity
+                circle.transition()
+                    .duration(800).style("opacity", 1)
+                    .attr("r", 2.5).ease("elastic");
+
+                // fade out guide lines, then remove them
+                d3.selectAll(".guide").transition().duration(100).styleTween("opacity",
+                        function() {
+                            return d3.interpolate(1, 0);
+                        })
+                    .remove()
+            };
+
+            var circles = svg.selectAll(".circle")
+                .data(data)
+                .enter()
+                .append("g")
+                .append("circle")
+                .attr("class", 'circle')
+                .attr("r", 2.5)
+                .attr("transform", "translate(" + x0.rangeBand() / 2 + ",0)")
+                .attr("cx", function(d) {
+                    return x0(d[variable]);
+                })
+                .attr("cy", function(d) {
+                    return y1(d[line_data]);
+                })
+                .attr("fill", d3.rgb('black').brighter())
+                .attr("stroke", 'black')
+                .on("mouseover", mouseOn)
+                .on("mouseout", mouseOff);
+
+
+            var linelegend = svg.selectAll(".linelegend")
+                .data([line_data])
+                .enter().append("g")
+                .attr("class", "linelegend")
+                .attr("transform", function(d, i) {
+                    return "translate(30," + i * 22 + ")";
+                });
+
+            linelegend.append("rect")
+                .attr("x", width + 1)
+                .attr("y", 2)
+                .attr("width", 10)
+                .attr("height", 10)
+                .attr("rx", 5)
+                .attr("stroke", function(d, i) {
+                    return 'black'
+                })
+                .attr("fill", function(d, i) {
+                    return d3.rgb('black').brighter()
+                });
+
+            linelegend.append("text")
+                .attr("x", width + 20)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "start")
+                .text(function(d) {
+                    return d.length > 25 ? d.substring(0, 23).replace("_", " ") + '..' : d.replace("_", " ")
+                });
+
+
+            var legend = svg.selectAll(".legend")
+                .data(chartSetting_cols)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(30," + ((i + 1) * 22) + ")";
+                });
+
+            legend.append("rect")
+                .attr("x", width - 3)
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("stroke", function(d, i) {
+                    return d3.rgb(color(d)).darker()
+                })
+                .attr("fill", function(d, i) {
+                    return color(d)
+                })
+                .attr("rx", 2)
+                .on("mouseover", function(t) {
+                    return fade(.1, t.replace(" ", "_").replace(" ", "_"))
+                })
+                .on("mouseout", function(t) {
+                    return fade(1, t.replace(" ", "_").replace(" ", "_"))
+                });
+
+            legend.append("text")
+                .attr("x", width + 20)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "start")
+                .text(function(d) {
+                    return d.length > 19 ? d.substring(0, 17).replace("_", " ") + '..' : d.replace("_", " ")
+                });
+
+            $('.group_bar').tipsy({
+                gravity: 'w',
+                html: true,
+                title: function() {
+                    var d = this.__data__;
+                    return console.log(d);
+                    variable.replace("_", " ") + ' : ' + d.groupby + ' <br/>' + d.name.replace("_", " ") + ' : ' + addThousandsSeparator(d.value)
+                }
+            });
+
+            $('circle').tipsy({
+                gravity: 'e',
+                html: true,
+                title: function() {
+                    var d = this.__data__;
+                    return variable.replace("_", " ") + " : " + d[variable] + '<br/> ' + line_data + ' : ' + d[line_data].toFixed(2);
+                }
+            });
+
+            $('.axis path,.axis line,.axis1 path,.axis1 line').css({
+                'fill': 'none',
+                'stroke': '#000',
+                'shape-rendering': 'crispEdges'
+            });
+            $('text').css({
+                'font': '10px sans-serif'
+            });
+
+        }
+
+        function tabExpansion(Report_Name) {
+
+            var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            var quarterNames = ["Q1", "Q2", "Q3", "Q4"];
+
+            if ($('#' + Report_Name + 'Groupby').has("option")[0] == undefined) {
+
+                var select_box = d3.select('#' + Report_Name + 'Groupby')
+                    .selectAll("option")
+                    .data(['Day', 'Week', 'Month', 'Quarter', 'Year'])
+                    .enter().append("option")
+                    .attr("value", function(d) {
+                        return d;
+                    })
+                    .attr("class", "name")
+                    //.attr("selected", "")
+                    .text(function(d) {
+                        return d.replace("_", " ")
+                    });
+
+
+                var select_box = d3.select('#' + Report_Name + 'Speciality')
+                    .selectAll("option")
+                    .data(['Faculty', 'General Surgery', 'GYN', 'Urology', 'Ortho', 'Pain Management'])
+                    .enter().append("option")
+                    .attr("value", function(d) {
+                        return d;
+                    })
+                    .attr("class", "name")
+                    .attr("selected", "")
+                    .text(function(d) {
+                        return d
+                    });
+
+                var select_box = d3.select('#' + Report_Name + 'Facility')
+                    .selectAll("option")
+                    .data(['Aria Facilities', 'Florida Medical Centre', 'Baltimore Hospital'])
+                    .enter().append("option")
+                    .attr("value", function(d, i) {
+                        return d;
+                    })
+                    .attr("class", "name")
+                    .attr("selected", "")
+                    .text(function(d) {
+                        return d
+                    });
+
+                var lm = new Date();
+                lm.setMonth(-1);
+
+                $('#' + Report_Name + 'datepicker').daterangepicker({
+                    startDate: lm,
+                    endDate: new Date(),
+                    ranges: {
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment()],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                        'This Year': [moment().startOf('year'), moment()],
+                        'Last Year': [moment().subtract(1, 'year').startOf('year'), , moment().subtract(1, 'year').endOf('year')],
+
+                    }
+                });
+
+                $('.' + Report_Name + 'multiple').multipleSelect({
+                    placeholder: "Here is the placeholder"
+                });
+
+
+            }
+
+
+            $('.OverallReportGroupby_options').click();
+
+            $('.' + Report_Name + 'Groupby_options').on('click', function() {
+
+                d3.csv('OverallInventorySummaryData.csv', function(data) {
+
+                    parseDate = d3.time.format("%m/%d/%Y").parse;
+                    parseTatDate = d3.time.format("%Y-%m-%d").parse;
+
+                    Date.prototype.getWeek = function() {
+                        var onejan = new Date(this.getFullYear(), 0, 1);
+                        return Math.ceil((((this - onejan) / 86400000) + onejan.getDay() + 1) / 7);
+                    }
+
+                    Date.prototype.getQuarter = function() {
+                        return Math.floor((this.getMonth()) / 3);
+                    }
+
+                    function getDateOfWeek(weekNumber, year) {
+                        //Create a date object starting january first of chosen year, plus the number of days in a week multiplied by the week number to get the right date.
+                        return new Date(year, 0, 1 + ((weekNumber - 1) * 7));
+                    }
+
+                    data.forEach(function(d) {
+
+                        d['SortedDate'] = parseDate(d['CodedDate'])
+
+                        d['CodedDate'] = (parseDate(d['CodedDate']).getMonth() + 1) + '/' + (parseDate(d['CodedDate']).getDate()) + '/' + (parseDate(d['CodedDate']).getYear() + 1900)
+
+                        d['WeekDate'] = getDateOfWeek(d['SortedDate'].getWeek(), 2017)
+                        d['WeekDate'] = (d['WeekDate'].getMonth() + 1) + '/' + (d['WeekDate'].getDate()) + '/' + (d['WeekDate'].getYear() + 1900)
+
+                        d['MonthDate'] = monthNames[d['SortedDate'].getMonth()].substring(0, 3) + ' - ' + (d['SortedDate'].getYear() + 1900);
+                        d['YearDate'] = d['SortedDate'].getYear() + 1900;
+                        d['QuarterDate'] = quarterNames[d['SortedDate'].getQuarter()].substring(0, 3) + ' - ' + (d['SortedDate'].getYear() + 1900);
+                        d['DayDate'] = d['CodedDate']
+
+                        d['Completed (%)'] = (d['FinalStatus'] != 'Completed' ? 0 : 1);
+                        d['Total_Inventory'] = 1
+                        d['Completed'] = (d['FinalStatus'] != 'Completed' ? 0 : 1)
+                        d['Pending'] = (d['FinalStatus'] != 'Completed' ? 1 : 0)
+
+                        d['CodingEndDateTime'] = parseDate(d['CodingEndDateTime'].split(" ")[0])
+                        d['porteddate'] = parseDate(d['porteddate'])
+
+                        d['TATDate'] = (d['CodingEndDateTime'] - d['porteddate']) / (1000 * 3600 * 24)
+                        d['TAT Met Inventory'] = (d['TATDate'] < 2 ? 1 : 0)
+                        d['TAT NotMet Inventory'] = (d['TATDate'] < 2 ? 0 : 1)
+                        d['TAT Met (%)'] = (d['TATDate'] < 2 ? 1 : 0)
+                        //console.log((d['CodingEndDateTime'], d['porteddate']));
+                    });
+
+                    data = data.sort(function(x, y) {
+                        return d3.ascending(x.SortedDate, y.SortedDate);
+                    });
+
+                    var odata = data
+                    var fdata = data
+                    var tdata = data
+
+                    var OverallReportSpeciality = [];
+                    $('#OverallReportSpeciality :selected').each(function(i, selected) {
+                        OverallReportSpeciality[i] = $(selected).val();
+                    });
+
+                    var OverallReportFacility = [];
+                    $('#OverallReportFacility :selected').each(function(i, selected) {
+                        OverallReportFacility[i] = $(selected).val();
+                    });
+
+                    var FacilityStatusReportSpeciality = [];
+                    $('#FacilityStatusReportSpeciality :selected').each(function(i, selected) {
+                        FacilityStatusReportSpeciality[i] = $(selected).val();
+                    });
+
+                    var FacilityStatusReportFacility = [];
+                    $('#FacilityStatusReportFacility :selected').each(function(i, selected) {
+                        FacilityStatusReportFacility[i] = $(selected).val();
+                    });
+
+                    var TATStatusReportSpeciality = [];
+                    $('#TATStatusReportSpeciality :selected').each(function(i, selected) {
+                        TATStatusReportSpeciality[i] = $(selected).val();
+                    });
+
+                    var TATStatusReportFacility = [];
+                    $('#TATStatusReportFacility :selected').each(function(i, selected) {
+                        TATStatusReportFacility[i] = $(selected).val();
+                    });
+
+                    fdata = fdata.filter(function(x, y) {
+                        return x.FinalStatus == 'Completed'
+                    })
+
+                    var OverallReportgroupval = $('#OverallReportGroupby').val();
+                    var FacilityStatusReportGroupby = $('#FacilityStatusReportGroupby').val();
+                    var TATStatusReportGroupby = $('#TATStatusReportGroupby').val();
+
+                    var OverallReportdatepicker = $('#OverallReportdatepicker').val().split(' - ');
+                    var FacilityStatusReportdatepicker = $('#FacilityStatusReportdatepicker').val().split(' - ');
+                    var TATStatusReportdatepicker = $('#TATStatusReportdatepicker').val().split(' - ');
+
+                    odata = odata.filter(function(x, y) {
+                        return x.SortedDate >= new Date(OverallReportdatepicker[0])
+                    })
+                    fdata = fdata.filter(function(x, y) {
+                        return x.SortedDate >= new Date(FacilityStatusReportdatepicker[0])
+                    })
+                    tdata = tdata.filter(function(x, y) {
+                        return x.SortedDate >= new Date(TATStatusReportdatepicker[0])
+                    })
+
+                    odata = odata.filter(function(x, y) {
+                        return x.SortedDate <= new Date(OverallReportdatepicker[1])
+                    })
+                    fdata = fdata.filter(function(x, y) {
+                        return x.SortedDate <= new Date(FacilityStatusReportdatepicker[1])
+                    })
+                    tdata = tdata.filter(function(x, y) {
+                        return x.SortedDate <= new Date(TATStatusReportdatepicker[1])
+                    })
+
+                    var odata_Facility = []
+                    _.each(odata, function(d) {
+                        if (_.contains(OverallReportFacility, d.Facility)) {
+                            odata_Facility.push(d);
+                        }
+                    });
+
+                    var odata_Speciality = []
+                    _.each(odata_Facility, function(d) {
+                        if (_.contains(OverallReportSpeciality, d.Speciality)) {
+                            odata_Speciality.push(d);
+                        }
+                    });
+
+
+                    var fdata_Facility = []
+                    _.each(fdata, function(d) {
+                        if (_.contains(FacilityStatusReportFacility, d.Facility)) {
+                            fdata_Facility.push(d);
+                        }
+                    });
+
+                    var fdata_Speciality = []
+                    _.each(fdata_Facility, function(d) {
+                        if (_.contains(FacilityStatusReportSpeciality, d.Speciality)) {
+                            fdata_Speciality.push(d);
+                        }
+                    });
+
+
+                    var tdata_Facility = []
+                    _.each(tdata, function(d) {
+                        if (_.contains(TATStatusReportFacility, d.Facility)) {
+                            tdata_Facility.push(d);
+                        }
+                    });
+
+                    var tdata_Speciality = []
+                    _.each(tdata_Facility, function(d) {
+                        if (_.contains(TATStatusReportSpeciality, d.Speciality)) {
+                            tdata_Speciality.push(d);
+                        }
+                    });
+
+
+                    var facilitydata_sets = d3.nest()
+                        .key(function(d) {
+                            return d[FacilityStatusReportGroupby + 'Date']
+                        })
+                        .key(function(d) {
+                            return d['Facility']
+                        })
+                        .rollup(function(d) {
+                            return {
+                                'Completed': d3.sum(d, function(g) {
+                                    return g.Completed;
+                                })
+                            };
+                        }).entries(fdata_Speciality);
+
+                    var parameterby = _.uniq(_.pluck(fdata_Facility, 'Facility'));
+
+                    facilitygroup_data = []
+                    facilitydata_sets.forEach(function(g) {
+                        g.values[$('#FacilityStatusReportGroupby').val()] = g.key
+
+                        g.values.forEach(function(c) {
+                            g.values[c.key] = c.values.Completed
+                        });
+
+                        facilitygroup_data.push(g.values)
+                    });
+
+
+                    var data_sets = d3.nest()
+                        .key(function(d) {
+                            return d[OverallReportgroupval + 'Date']
+                        })
+                        .rollup(function(d) {
+                            return {
+                                'Total_Inventory': d3.sum(d, function(g) {
+                                    return g.Total_Inventory;
+                                }),
+                                'Completed': d3.sum(d, function(g) {
+                                    return g.Completed;
+                                }),
+                                'Pending': d3.sum(d, function(g) {
+                                    return g.Pending;
+                                }),
+                                'Completed (%)': (d3.sum(d, function(g) {
+                                    return g['Completed (%)'];
+                                }) * 100 / d3.sum(d, function(g) {
+                                    return g.Total_Inventory;
+                                }))
+                            };
+                        }).entries(odata_Speciality);
+
+                    group_data = []
+                    data_sets.forEach(function(g) {
+                        console.log(g.key);
+                        console.log($('#OverallReportGroupby').val());
+                        g.values[$('#OverallReportGroupby').val()] = g.key
+                        group_data.push(g.values)
+                        console.log(g.values);
+
+                    });
+
+                    var TATdata_sets = d3.nest()
+                        .key(function(d) {
+                            return d[TATStatusReportGroupby + 'Date']
+                        })
+                        .rollup(function(d) {
+                            return {
+                                'Total Inventory': d3.sum(d, function(g) {
+                                    return g.Total_Inventory;
+                                }),
+                                'TAT Met': d3.sum(d, function(g) {
+                                    return g['TAT Met Inventory'];
+                                }),
+                                'TAT Not Met': d3.sum(d, function(g) {
+                                    return g['TAT NotMet Inventory'];
+                                }),
+                                'TAT Met (%)': (d3.sum(d, function(g) {
+                                    return g['TAT Met (%)'];
+                                }) * 100 / d3.sum(d, function(g) {
+                                    return g.Total_Inventory;
+                                }))
+                            };
+                        }).entries(tdata_Speciality);
+
+                    TATgroup_data = []
+                    TATdata_sets.forEach(function(g) {
+                        g.values[$('#TATStatusReportGroupby').val()] = g.key
+                        TATgroup_data.push(g.values)
+
+                    });
+
+                    var config = {
+                        chartSetting: {
+                            elementId: "OverallReportchart",
+                            adaptive: "true",
+                            width: 960,
+                            height: 380,
+                            margin: {
+                                top: 15,
+                                right: 150,
+                                bottom: 50,
+                                left: 70
+                            },
+                            colorArray: ['#00A3D9', '#00D936', '#FF8000'],
+                            columns: ['Total_Inventory', 'Completed', 'Pending'],
+                            variable: $('#OverallReportGroupby').val(),
+                            line: 'Completed (%)'
+                        }
+                    }
+
+                    var facilityconfig = {
+                        chartSetting: {
+                            elementId: "FacilityStatusReportchart",
+                            adaptive: "true",
+                            width: 960,
+                            height: 360,
+                            margin: {
+                                top: 15,
+                                right: 200,
+                                bottom: 50,
+                                left: 70
+                            },
+                            colorArray: ['#00A3D9', '#00D936', '#FF8000'],
+                            columns: parameterby,
+                            variable: $('#FacilityStatusReportGroupby').val()
+                        }
+                    }
+
+                    var TATconfig = {
+                        chartSetting: {
+                            elementId: "TATStatusReportchart",
+                            adaptive: "true",
+                            width: 960,
+                            height: 380,
+                            margin: {
+                                top: 15,
+                                right: 150,
+                                bottom: 50,
+                                left: 70
+                            },
+                            colorArray: ['#00A3D9', '#00D936', '#FF8000'],
+                            columns: ['Total Inventory', 'TAT Met', 'TAT Not Met'],
+                            variable: $('TATStatusReportGroupby').val(),
+                            line: 'TAT Met (%)'
+                        }
+                    }
+
+                    if (group_data.length == 0) {
+                        d3.select('#OverallReportchart').select('svg').remove();
+                    } else {
+                        if ($('#OverallReportChartby').val() == 'multiLine') {
+                            multiLine(config, group_data, $('#OverallReportGroupby').val(), Report_Name);
+                        } else if ($('#OverallReportChartby').val() == 'groupBar') {
+                            groupBar(config, group_data, $('#OverallReportGroupby').val(), Report_Name);
+                        } else if ($('#OverallReportChartby').val() == 'horizontalGroupBar') {
+                            horizontalGroupBar(config, group_data, $('#OverallReportGroupby').val(), Report_Name);
+                        } else {
+                            groupBarPlusLine(config, group_data, $('#OverallReportGroupby').val(), Report_Name);
+                        }
+                    }
+
+                    if (facilitygroup_data.length == 0) {
+                        d3.select('#FacilityStatusReportchart').select('svg').remove();
+                    } else {
+                        if ($('#FacilityStatusReportChartby').val() == 'multiLine') {
+                            multiLine(facilityconfig, facilitygroup_data, $('#FacilityStatusReportGroupby').val(), Report_Name);
+                        } else if ($('#FacilityStatusReportChartby').val() == 'groupBar') {
+                            groupBar(facilityconfig, facilitygroup_data, $('#FacilityStatusReportGroupby').val(), Report_Name);
+                        } else if ($('#FacilityStatusReportChartby').val() == 'horizontalGroupBar') {
+                            horizontalGroupBar(facilityconfig, facilitygroup_data, $('#FacilityStatusReportGroupby').val(), Report_Name);
+                        } else {
+                            stackedBar(facilityconfig, facilitygroup_data, $('#FacilityStatusReportGroupby').val(), Report_Name);
+                        }
+                    }
+
+                    if (TATgroup_data.length == 0) {
+                        d3.select('#TATStatusReportchart').select('svg').remove();
+                    } else {
+                        if ($('#TATStatusReportChartby').val() == 'multiLine') {
+                            multiLine(TATconfig, TATgroup_data, $('#TATStatusReportGroupby').val(), Report_Name);
+                        } else if ($('#TATStatusReportChartby').val() == 'groupBar') {
+                            groupBar(TATconfig, TATgroup_data, $('#TATStatusReportGroupby').val(), Report_Name);
+                        } else if ($('#TATStatusReportChartby').val() == 'horizontalGroupBar') {
+                            horizontalGroupBar(TATconfig, TATgroup_data, $('#TATStatusReportGroupby').val(), Report_Name);
+                        } else {
+                            groupBarPlusLine(TATconfig, TATgroup_data, $('#TATStatusReportGroupby').val(), Report_Name);
+                        }
+                    }
+
+                    group_data.forEach(function(o) {
+                        o.groups = $('#OverallReportGroupby').val()
+                    });
+
+                    facilitygroup_datanew = []
+                    facilitygroup_data.forEach(function(f) {
+                        r = {}
+                        parameterby.forEach(function(p) {
+                            if (f[p] == undefined) {
+                                r[p] = 0
+                            } else {
+                                r[p] = f[p]
+                            }
+
+                        });
+                        r[$('#FacilityStatusReportGroupby').val()] = f[$('#FacilityStatusReportGroupby').val()]
+                        r['groups'] = $('#FacilityStatusReportGroupby').val()
+                        facilitygroup_datanew.push(r);
+                    });
+
+                    TATgroup_data.forEach(function(t) {
+                        t.groups = $('#TATStatusReportGroupby').val()
+                    });
+
+                    oJSONToCSVConvertor(group_data, Report_Name);
+                    fJSONToCSVConvertor(facilitygroup_datanew, Report_Name);
+                    tJSONToCSVConvertor(TATgroup_data, Report_Name);
+
+
+                });
+
+            });
+
+        }
+
+        document.getElementById('OverallReport').style.display = "block";
+
+        tabExpansion('OverallReport');
+        tabExpansion('FacilityStatusReport');
+        tabExpansion('TATStatusReport');
+
+        function openCity(evt, cityName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            document.getElementById(cityName).style.display = "block";
+            evt.currentTarget.className += " active";
+            tabExpansion(cityName);
+
+        }
+
+    </script>
+</body>
+
+</html>

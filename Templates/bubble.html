@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<style>
+body {
+  font: 10px sans-serif;
+}
+</style>
+</head>
+<body>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<script type="text/javascript" src="js/cloud.js"></script>
+<link href="css/tipsy.css" rel="stylesheet" type="text/css" />
+
+<div id="chartContainer">
+      <div id="chart1"></div>
+</div>
+
+<script>
+ 
+function bubbleChart(config, data){
+
+    var elementId = config.chartSetting.elementId;
+
+        var margin = config.chartSetting.margin
+            width = config.chartSetting.width - margin.left - margin.right,
+            height = config.chartSetting.height - margin.top - margin.bottom,
+            colorArray = config.chartSetting.colorArray;
+
+    var svg = d3.select("#" + elementId).append("svg")
+              .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+              .attr("class", "bubble")
+                .append("g")
+                .attr("id", "circle")
+                .attr("transform", "translate(" + (width-height) / 2 + ",0)");
+   
+    var diameter = d3.min([width,height]),
+        format = d3.format(",d"),
+        color = d3.scale.category20b();
+
+    var bubble = d3.layout.pack()
+            .size([diameter, diameter])
+            .padding(1.5);
+        
+    var popData = false;
+
+    d3.text("data/population.csv", function(datasetText) {
+
+      popData = d3.csv.parseRows(datasetText);
+
+      var nodes = popData.slice(3).map( function (d) {
+        return {name: d[0], value: d[d.length-4]};
+      })
+        .filter(function(d) { return d.value < 1500000000; });
+      console.log(bubble.nodes({children: nodes})
+           .filter(function(d) { return !d.children; }));
+      var node = svg.selectAll(".node")
+          .data(bubble.nodes({children: nodes})
+           .filter(function(d) { return !d.children; })
+         )
+        .enter().append("g")
+          .attr("class", "node")
+          .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+        // Coordinates calculated by D3 layout, need to actually use them yourself!
+
+      node.append("circle")
+          .attr("r", function(d) { return d.r; }).style("fill", function(d) { return color(d.name); });
+
+      node.append("text") // The label
+          .attr("dy", ".2em")
+          .style("text-anchor", "middle") // CSS styling
+          //.style("text-decoration", "underline")
+          .style("font-family", "sans-serif")
+          .text(function(d) { return d.name.substring(0, d.r / 3); });
+    
+        $('.node').tipsy({ 
+                gravity: 'w', 
+                html: true, 
+                title: function() {
+                  var d = this.__data__;
+                  return d.name + ": " + format(d.value);
+                }
+         });
+             
+    });
+}
+var config = {
+    chartSetting: {
+        elementId: "chart1",
+        adaptive: "true",
+        width: 960,
+        height: 400,
+        margin: {
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10 },
+        colorArray: ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+    }
+}
+
+bubbleChart(config, 'bubble');
+  
+</script> 
+</body>
+</html>

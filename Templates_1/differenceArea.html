@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body {
+  font: 10px sans-serif;
+}
+
+.area.above {
+  fill: rgb(252,141,89);
+}
+
+.area.below {
+  fill: rgb(145,207,96);
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.1);
+  shape-rendering: crispEdges;
+    stroke-width: 2px;
+}
+
+.axisLine {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: rgba(0, 0, 0, 0.5);
+  stroke-width: 2px;
+}
+
+</style>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+</head>
+<body>
+<div id="chartContainer">
+    <div id="chart1"></div>
+</div>
+<script>
+var data = [
+  {
+    "date": "20111001",
+    "city1": 63.4,
+    "city2": 62.7
+  },
+  {
+    "date": "20111002",
+    "city1": 58,
+    "city2": 59.9
+  },
+  {
+    "date": "20111003",
+    "city1": 53.3,
+    "city2": 59.1
+  },
+  {
+    "date": "20111004",
+    "city1": 55.7,
+    "city2": 58.8
+  },
+  {
+    "date": "20111005",
+    "city1": 64.2,
+    "city2": 58.7
+  },
+  {
+    "date": "20111006",
+    "city1": 58.8,
+    "city2": 57
+  },
+  {
+    "date": "20111007",
+    "city1": 57.9,
+    "city2": 56.7
+  },
+  {
+    "date": "20111008",
+    "city1": 61.8,
+    "city2": 56.8
+  },
+  {
+    "date": "20111009",
+    "city1": 69.3,
+    "city2": 56.7
+  },
+  {
+    "date": "20111010",
+    "city1": 71.2,
+    "city2": 60.1
+  },
+  {
+    "date": "20111011",
+    "city1": 68.7,
+    "city2": 61.1
+  },
+  {
+    "date": "20111012",
+    "city1": 61.8,
+    "city2": 61.5
+  },
+  {
+    "date": "20111013",
+    "city1": 63,
+    "city2": 64.3
+  },
+  {
+    "date": "20111014",
+    "city1": 66.9,
+    "city2": 67.1
+  },
+  {
+    "date": "20111015",
+    "city1": 61.7,
+    "city2": 64.6
+  },
+  {
+    "date": "20111016",
+    "city1": 61.8,
+    "city2": 61.6
+  },
+  {
+    "date": "20111017",
+    "city1": 62.8,
+    "city2": 61.1
+  },
+  {
+    "date": "20111018",
+    "city1": 60.8,
+    "city2": 59.2
+  },
+  {
+    "date": "20111019",
+    "city1": 62.1,
+    "city2": 58.9
+  },
+  {
+    "date": "20111020",
+    "city1": 65.1,
+    "city2": 57.2
+  },
+  {
+    "date": "20111021",
+    "city1": 55.6,
+    "city2": 56.4
+  },
+  {
+    "date": "20111022",
+    "city1": 54.4,
+    "city2": 60.7
+  },
+  {
+    "date": "20111023",
+    "city1": 54.4,
+    "city2": 65.1
+  },
+  {
+    "date": "20111024",
+    "city1": 54.8,
+    "city2": 60.9
+  },
+  {
+    "date": "20111025",
+    "city1": 57.9,
+    "city2": 56.1
+  },
+  {
+    "date": "20111026",
+    "city1": 54.6,
+    "city2": 54.6
+  },
+  {
+    "date": "20111027",
+    "city1": 54.4,
+    "city2": 56.1
+  },
+  {
+    "date": "20111028",
+    "city1": 42.5,
+    "city2": 58.1
+  },
+  {
+    "date": "20111029",
+    "city1": 40.9,
+    "city2": 57.5
+  },
+  {
+    "date": "20111030",
+    "city1": 38.6,
+    "city2": 57.7
+  },
+  {
+    "date": "20111031",
+    "city1": 44.2,
+    "city2": 55.1
+  },
+  {
+    "date": "20111101",
+    "city1": 49.6,
+    "city2": 57.9
+  },
+  {
+    "date": "20111102",
+    "city1": 47.2,
+    "city2": 64.6
+  },
+  {
+    "date": "20111103",
+    "city1": 50.1,
+    "city2": 56.2
+  },
+  {
+    "date": "20111104",
+    "city1": 50.1,
+    "city2": 50.5
+  },
+  {
+    "date": "20111105",
+    "city1": 43.5,
+    "city2": 51.3
+  },
+  {
+    "date": "20111106",
+    "city1": 43.8,
+    "city2": 52.6
+  },
+  {
+    "date": "20111107",
+    "city1": 48.9,
+    "city2": 51.4
+  },
+  {
+    "date": "20111108",
+    "city1": 55.5,
+    "city2": 50.6
+  },
+  {
+    "date": "20111109",
+    "city1": 53.7,
+    "city2": 54.6
+  },
+  {
+    "date": "20111110",
+    "city1": 57.7,
+    "city2": 55.6
+  },
+  {
+    "date": "20111111",
+    "city1": 48.5,
+    "city2": 53.9
+  },
+  {
+    "date": "20111112",
+    "city1": 46.8,
+    "city2": 54
+  },
+  {
+    "date": "20111113",
+    "city1": 51.1,
+    "city2": 53.8
+  },
+  {
+    "date": "20111114",
+    "city1": 56.8,
+    "city2": 53.5
+  },
+  {
+    "date": "20111115",
+    "city1": 59.7,
+    "city2": 53.4
+  },
+  {
+    "date": "20111116",
+    "city1": 56.5,
+    "city2": 52.2
+  },
+  {
+    "date": "20111117",
+    "city1": 49.6,
+    "city2": 52.7
+  },
+  {
+    "date": "20111118",
+    "city1": 41.5,
+    "city2": 53.1
+  },
+  {
+    "date": "20111119",
+    "city1": 44.3,
+    "city2": 49
+  },
+  {
+    "date": "20111120",
+    "city1": 54,
+    "city2": 50.4
+  },
+  {
+    "date": "20111121",
+    "city1": 54.1,
+    "city2": 51.1
+  },
+  {
+    "date": "20111122",
+    "city1": 49.4,
+    "city2": 52.3
+  },
+  {
+    "date": "20111123",
+    "city1": 50,
+    "city2": 54.6
+  },
+  {
+    "date": "20111124",
+    "city1": 44,
+    "city2": 55.1
+  },
+  {
+    "date": "20111125",
+    "city1": 50.3,
+    "city2": 51.5
+  },
+  {
+    "date": "20111126",
+    "city1": 52.1,
+    "city2": 53.6
+  },
+  {
+    "date": "20111127",
+    "city1": 49.6,
+    "city2": 52.3
+  },
+  {
+    "date": "20111128",
+    "city1": 57.2,
+    "city2": 51
+  },
+  {
+    "date": "20111129",
+    "city1": 59.1,
+    "city2": 49.5
+  },
+  {
+    "date": "20111130",
+    "city1": 50.6,
+    "city2": 49.8
+  },
+  {
+    "date": "20111201",
+    "city1": 44.3,
+    "city2": 60.4
+  },
+  {
+    "date": "20111202",
+    "city1": 43.9,
+    "city2": 62.2
+  },
+  {
+    "date": "20111203",
+    "city1": 42.1,
+    "city2": 58.3
+  },
+  {
+    "date": "20111204",
+    "city1": 43.9,
+    "city2": 52.7
+  },
+  {
+    "date": "20111205",
+    "city1": 50.2,
+    "city2": 51.5
+  },
+  {
+    "date": "20111206",
+    "city1": 54.2,
+    "city2": 49.9
+  },
+  {
+    "date": "20111207",
+    "city1": 54.6,
+    "city2": 48.6
+  },
+  {
+    "date": "20111208",
+    "city1": 43.4,
+    "city2": 46.4
+  },
+  {
+    "date": "20111209",
+    "city1": 42.2,
+    "city2": 49.8
+  },
+  {
+    "date": "20111210",
+    "city1": 45,
+    "city2": 52.1
+  },
+  {
+    "date": "20111211",
+    "city1": 33.8,
+    "city2": 48.8
+  },
+  {
+    "date": "20111212",
+    "city1": 36.8,
+    "city2": 47.4
+  },
+  {
+    "date": "20111213",
+    "city1": 38.6,
+    "city2": 47.2
+  },
+  {
+    "date": "20111214",
+    "city1": 41.9,
+    "city2": 46.1
+  },
+  {
+    "date": "20111215",
+    "city1": 49.6,
+    "city2": 48.8
+  },
+  {
+    "date": "20111216",
+    "city1": 50.2,
+    "city2": 47.9
+  },
+  {
+    "date": "20111217",
+    "city1": 40.6,
+    "city2": 49.8
+  },
+  {
+    "date": "20111218",
+    "city1": 29.1,
+    "city2": 49.1
+  },
+  {
+    "date": "20111219",
+    "city1": 33.7,
+    "city2": 48.3
+  },
+  {
+    "date": "20111220",
+    "city1": 45.8,
+    "city2": 49.3
+  },
+  {
+    "date": "20111221",
+    "city1": 47.4,
+    "city2": 48.4
+  },
+  {
+    "date": "20111222",
+    "city1": 54.4,
+    "city2": 53.3
+  },
+  {
+    "date": "20111223",
+    "city1": 47.8,
+    "city2": 47.5
+  },
+  {
+    "date": "20111224",
+    "city1": 34.9,
+    "city2": 47.9
+  },
+  {
+    "date": "20111225",
+    "city1": 35.9,
+    "city2": 48.9
+  },
+  {
+    "date": "20111226",
+    "city1": 43.6,
+    "city2": 45.9
+  },
+  {
+    "date": "20111227",
+    "city1": 42.9,
+    "city2": 47.2
+  },
+  {
+    "date": "20111228",
+    "city1": 46.2,
+    "city2": 48.9
+  }
+];
+
+function differenceAreaChar(config, data){
+
+ var elementId = config.chartSetting.elementId;
+
+    var margin = config.chartSetting.margin
+        width = config.chartSetting.width - margin.left - margin.right,
+        height = config.chartSetting.height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;
+
+    var svg = d3.select("#" + elementId).append("svg")
+              .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+             .append("g")
+               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var parseDate = d3.time.format("%Y%m%d").parse;
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+var line = d3.svg.area()
+    .interpolate("basis")
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.city1); });
+
+var area = d3.svg.area()
+    .interpolate("basis")
+    .x(function(d) { return x(d.date); })
+    .y1(function(d) { return y(d.city1); });
+
+
+  data.forEach(function(d) {
+    d.date = parseDate(d.date);
+  
+  });
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+
+  y.domain([
+    d3.min(data, function(d) { return Math.min(d.city1, d.city2); }),
+    d3.max(data, function(d) { return Math.max(d.city1, d.city2); })
+  ]);
+
+  svg.datum(data);
+
+  svg.append("clipPath")
+      .attr("id", "clip-below")
+    .append("path")
+      .attr("d", area.y0(height));
+
+  svg.append("clipPath")
+      .attr("id", "clip-above")
+    .append("path")
+      .attr("d", area.y0(0));
+
+  svg.append("path")
+      .attr("class", "area above")
+      .attr("clip-path", "url(#clip-above)")
+      .attr("d", area.y0(function(d) { return y(d.city2); }));
+
+  svg.append("path")
+      .attr("class", "area below")
+      .attr("clip-path", "url(#clip-below)")
+      .attr("d", area);
+
+  svg.append("path")
+      .attr("class", "line")
+      .attr("d", line);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("values");
+
+}
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 30,
+            right: 20,
+            bottom: 25,
+            left: 40
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+       
+    }
+    
+}    
+differenceAreaChar(config, data);
+</script>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>Heat Chart</title>
+<style>
+   text.mono {
+        font-family: Consolas, courier;
+        fill: #aaa;
+    }
+
+    text.axis-workmonth {
+        fill: #000;
+    }
+
+    text.axis-worktime {
+        fill: #000;
+    }
+
+</style>
+</head>
+<body>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+
+    <div id="chartContainer">
+        <div id="chart"></div>
+    </div>
+
+<script>
+    
+    var times = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    var names = ["2001","2002","2003","2004","2005","2006","2007","2008","2009","2010"];
+
+    var newData = [10, 3, 4, 5, 6, 7, 8, 9, 0, 2, 22,
+                 2, 2, 22, 2, 22, 22, 22, 22, 22, 22, 22, 44,
+                 44, 44, 44, 44, 44, 4, 2, 3, 4, 5, 6, 7,
+                 8, 9, 10, 2, 22, 2, 2, 22, 2, 22, 22, 22,
+                 22, 22, 22, 22, 44, 44, 44, 44, 44, 44, 4, 2,
+                 3, 4, 5, 6, 7, 8, 9, 10, 2, 22, 2, 2,
+                 22, 2, 22, 22, 22, 22, 22, 22, 22, 44, 44, 44,
+                 44, 44, 44, 4, 2, 3, 4, 5, 6, 7, 8, 9,
+                 10, 2, 22, 2, 2, 22, 2, 22, 22, 22, 22, 22,
+                 22, 22, 4, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                 8, 9, 10, 2, 22, 2, 2, 22, 2, 22, 22, 22,
+                 22, 22, 22, 22, 44, 44, 44, 44, 44, 44, 4, 2,
+                 3, 4, 5, 6, 7, 8, 9, 10, 2, 22, 2, 2,
+                 10, 2, 22, 2, 2, 22, 2, 22, 22, 22, 22, 22,
+                 22, 22, 4, 2, 3, 4, 5, 6, 7, 8, 9, 10, ];
+
+                   var renderChart = function () {
+                    
+                    d3.select('#chart').select('svg').remove();
+                    var height = document.getElementById('chart').parentElement.clientHeight,
+                        width = document.getElementById('chart').parentElement.clientWidth;
+
+                            var nameLength = names.length;
+                            height = (28 * nameLength) + 50;
+
+                            var margin = { top: 50, right: 0, bottom: 100, left: 50 },
+                              width = width - margin.left - margin.right,
+                              height = height - margin.top - margin.bottom,
+                              gridSize = Math.floor(width / 12),
+                              legendElementWidth = gridSize * 2,
+                              buckets = 9,
+                              colors = ['#d73027','#f46d43','#fdae61','#fee090','#ffffbf','#e0f3f8','#abd9e9','#74add1','#4575b4'];
+
+                            var div = d3.select("body").append("div").attr("class", "tooltip").style("display", "none");
+                            var tempdata = [];
+
+                            var getCount = [];
+                            for (var j = 1; j <= names.length; j++) {
+                                for (var k = 1; k <= 12; k++) {
+                                    getCount.push(k);
+                                    tempdata.push({ 'day': j, hour: k });
+                                }
+
+                            }
+                            var svg = d3.select("#chart")
+                                        .append("svg")
+                                        .attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g")
+                                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                            var dayLabels = svg.selectAll(".dayLabel")
+                                            .data(names).enter()
+                                            .append("text")
+                                            .text(function (d) { return d; })
+                                            .attr("x", 0)
+                                            .attr("y", function (d, i) { return i * 27; })
+                                            .attr("transform", "translate(-40," + 12 + ")")
+                                            .attr("class", function (d, i) { return "dayLabel mono axis axis-workmonth" });
+
+                            var timeLabels = svg.selectAll(".timeLabel")
+                                            .data(times).enter()
+                                            .append("text")
+                                            .text(function (d) { return d; })
+                                            .attr("x", function (d, i) { return i * (gridSize); })
+                                            .attr("y", 0)
+                                            .style("text-anchor", "middle")
+                                            .style("font-size", gridSize/2>15? 15 : gridSize/2)
+                                            .attr("transform", "translate(" + gridSize / 2 + ", -6)")
+                                            .attr("class", function (d, i) { return "timeLabel mono axis axis-worktime" });
+
+                            var colorScale = d3.scale.quantile()
+                                            .domain([0, buckets - 1, d3.max(newData, function (d) { return d; })])
+                                            .range(colors);
+
+                            var cards = svg.selectAll(".hour")
+                                        .data(tempdata, function (d) { return d.day + ':' + d.hour; });
+
+                            cards.append("title");
+
+                        cards.enter().append("rect")
+                                .attr("x", function(d) { return (d.hour - 1) * (gridSize); })
+                                .attr("y", function(d) { return (d.day - 1) * (27);  })
+                                .attr("rx", gridSize * .04)
+                                .attr("ry", gridSize * .04)
+                                .attr("class", "hour bordered")
+                                .attr("width", gridSize * .92)
+                                .attr("height", 20)
+                                .attr("transform", "translate(" + gridSize * .04 + ",0)");
+
+                            cards.data(newData)
+                                  .attr("fill", function (d) { return colorScale(d); })
+                                  .attr("stroke", function (d) { return d3.rgb(colorScale(d)).darker(); });
+
+                                 $('rect').tipsy({ 
+                                    gravity: 'w', 
+                                    html: true, 
+                                    title: function() {
+                                      var d = this.__data__;
+                                      return "Value: " + d; 
+                                    }
+                                 });
+                        }
+                        renderChart();
+
+                        $(window).resize(function (d) {
+                            d3.select("#chart").select('svg').remove();
+                            renderChart();
+                        });
+                
+                    
+</script>
+</html>

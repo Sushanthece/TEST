@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body {
+  font: 14px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.y.axisRight path {
+    fill: ffd24d;
+}
+.y.axisLeft path {
+    fill: 69d900;
+
+}
+
+</style>
+<body>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+    <div id="chartContainer">
+            <div id="chart1"></div>
+    </div>
+<script>
+
+var data = [
+    {"year": 2005,"amount": 550,"count": 35},
+    {"year": 2006,"amount": 600,"count": 40},
+    {"year": 2007,"amount": 700,"count": 45},
+    {"year": 2008,"amount": 800,"count": 60},
+    {"year": 2009,"amount": 900,"count": 70},
+    {"year": 2010,"amount": 850,"count": 65},
+    {"year": 2011,"amount": 880,"count": 67},
+    {"year": 2012,"amount": 900,"count": 70},
+    {"year": 2013,"amount": 1000,"count": 75},
+    {"year": 2014,"amount": 850,"count": 65},
+    {"year": 2015,"amount": 880,"count": 67},
+    {"year": 2016,"amount": 900,"count": 70},
+    {"year": 2017,"amount": 1000,"count": 75}
+    ]
+
+function dualScaleBarChar(config, data) {
+
+    var elementId = config.chartSetting.elementId;
+
+        var height = config.chartSetting.height
+        var width = config.chartSetting.width
+   
+        var margin = config.chartSetting.margin;
+
+var margin = {top: 50, right: 60, bottom: 30, left: 60},
+    width = 960 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var y0 = d3.scale.linear().domain([300, 1100]).range([height, 0]),
+    y1 = d3.scale.linear().domain([20, 80]).range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+// create left yAxis
+var yAxisLeft = d3.svg.axis().scale(y0).ticks(4).orient("left");
+
+// create right yAxis
+var yAxisRight = d3.svg.axis().scale(y1).ticks(6).orient("right");
+
+var svg = d3.select("#" + elementId).append("svg")
+           .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+          .append("g")
+            .attr("class", "graph")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+  x.domain(data.map(function(d) { return d[Object.keys(data[0])[0]]; }));
+  y0.domain([0, d3.max(data, function(d) { return d[Object.keys(data[0])[1]]; })]);
+  
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("fill", "#69d900")
+      .attr("class", "y axis axisLeft")
+      .attr("transform", "translate(0,0)")  
+      .call(yAxisLeft)
+    .append("text")
+      .attr("y", 6)
+      .attr("dy", "-2em")
+      .style("text-anchor", "end")
+      .style("text-anchor", "end")
+      .text("Dollars");
+    
+  svg.append("g")
+      .attr("fill", "#ffd24d")   
+      .attr("class", "y axis axisRight")
+      .attr("transform", "translate(" + (width) + ",0)")
+      .call(yAxisRight)
+    .append("text")
+      .attr("y", 6)
+      .attr("dy", "-2em")
+      .attr("dx", "2em")
+      .style("text-anchor", "end")
+      .text("#");
+    
+  bars = svg.selectAll(".bar").data(data).enter();
+  
+  bars.append("rect")
+      .attr("class", "bar1")
+      .attr("x", function(d) { return x(d[Object.keys(data[0])[0]]) + (x.rangeBand()*.05); })
+      .attr("width", (x.rangeBand()/2) * .9)
+      .attr("y", function(d) { return y0(d[Object.keys(data[0])[1]]); })
+      .attr("fill", "#69d900")
+      .attr("stroke", d3.rgb("#69d900").darker())
+      .attr("height", function(d,i,j) { return height - y0(d[Object.keys(data[0])[1]]); }); 
+
+  bars.append("rect")
+      .attr("class", "bar2")
+      .attr("x", function(d) { return x(d[Object.keys(data[0])[0]]) + x.rangeBand()/2 + (x.rangeBand()*.05); })
+      .attr("width", (x.rangeBand()/2) * .9)
+      .attr("y", function(d) { return y1(d[Object.keys(data[0])[2]]); })
+      .attr("fill", "#ffd24d")   
+      .attr("stroke", d3.rgb("#ffd24d").darker())   
+      .attr("height", function(d,i,j) { return height - y1(d[Object.keys(data[0])[2]]); }); 
+
+$('rect').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return "year :"+d[Object.keys(data[0])[0]]+' <br/> '+Object.keys(data[0])[1]+' :'+d[Object.keys(data[0])[1]]+'$ <br/> '+Object.keys(data[0])[2]+' : '+d[Object.keys(data[0])[2]]
+        }
+     });
+
+}
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 40,
+            right: 20,
+            bottom: 25,
+            left: 50
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+    }
+    
+}    
+dualScaleBarChar(config, data);
+ 
+</script>

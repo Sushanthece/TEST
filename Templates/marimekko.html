@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>Marimekko Chart</title>
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+</style>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+</head>
+<body>
+
+<div id="chartContainer">
+    <div id="chart1"></div>
+</div>
+
+<script>
+
+var data = [
+  {
+    "month": "Jan",
+    "Referral": 90,
+    "Payments": 60,
+    "Adjustments": 10,
+    "Write-off": 12
+  },
+  {
+    "month": "Feb",
+    "Referral": 80,
+    "Payments": 30,
+    "Adjustments": 20,
+    "Write-off": 14
+  },
+  {
+    "month": "Mar",
+    "Referral": 70,
+    "Payments": 70,
+    "Adjustments": 20,
+    "Write-off": 16
+  },
+  {
+    "month": "Apr",
+    "Referral": 60,
+    "Payments": 80,
+    "Adjustments": 30,
+    "Write-off": 12
+  },
+  {
+    "month": "May",
+    "Referral": 80,
+    "Payments": 20,
+    "Adjustments": 50,
+    "Write-off": 30
+  },
+  {
+    "month": "Jun",
+    "Referral": 90,
+    "Payments": 40,
+    "Adjustments": 60,
+    "Write-off": 22
+  },
+  {
+    "month": "Jul",
+    "Referral": 95,
+    "Payments": 15,
+    "Adjustments": 15,
+    "Write-off": 25
+  }
+]
+
+function marimekkoChar(config, group_data) {
+
+
+    var chartSetting_cols = config.chartSetting.columns;
+
+    var elementId = config.chartSetting.elementId;
+
+    var height = config.chartSetting.height
+    var width = config.chartSetting.width
+
+   var margin = config.chartSetting.margin,
+      width = width - margin.left - margin.right,
+      height = height - margin.top - margin.bottom,
+      colorArray = config.chartSetting.colorArray;
+
+
+    data = [];
+    group_data.forEach(function(d) {
+       chartSetting_cols.forEach(function(h){
+          l = {}
+          l['month'] = d.month
+          l['grouper'] = h
+          l['value'] = d[h]
+          data.push(l)
+        });
+    });
+
+var x = d3.scale.linear()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([0, height]);
+
+var color = d3.scale.ordinal().range(colorArray);
+
+var n = d3.format(",d"),
+    p = d3.format("%");
+
+var svg = d3.select("#" + elementId).append("svg")
+     .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var offset = 0;
+
+  // Nest values by month. We assume each month+grouper is unique.
+  var months = d3.nest()
+      .key(function(d) { return d.month; })
+      .entries(data);
+
+  // Compute the total sum, the per-month sum, and the per-grouper offset.
+  // You can use reduce rather than reduceRight to reverse the ordering.
+  // We also record a reference to the parent month for each grouper.
+  var sum = months.reduce(function(v, p) {
+    return (p.offset = v) + (p.sum = p.values.reduceRight(function(v, d) {
+      d.parent = p;
+      return (d.offset = v) + d.value;
+    }, 0));
+  }, 0);
+
+    // Add x-axis ticks.
+    var xtick = svg.selectAll(".x")
+          .data(months)
+        .enter().append("g")
+          .attr("class", "x")
+          .attr("transform", function(d) { return "translate(" + x(((d.sum/2)+d.offset)/ sum) +","+height+")"; });
+
+    xtick.append("line")
+          .attr("y2", 6)
+          .style("stroke", "#000");
+
+  xtick.append("text")
+      .attr("y", 8)
+      .attr("text-anchor", "middle")
+      .attr("dy", ".71em")
+      .text(function(d) { return d.key });
+  
+/*  // Add x-axis ticks.
+  var xtick = svg.selectAll(".x")
+      .data(x.ticks(10))
+    .enter().append("g")
+      .attr("class", "x")
+      .attr("transform", function(d) { return "translate(" + x(d) + "," + y(1) + ")"; });
+
+  xtick.append("line")
+      .attr("y2", 6)
+      .style("stroke", "#000");
+
+  xtick.append("text")
+      .attr("y", 8)
+      .attr("text-anchor", "middle")
+      .attr("dy", ".71em")
+      .text(p);
+*/
+  // Add y-axis ticks.
+  var ytick = svg.selectAll(".y")
+      .data(y.ticks(10))
+    .enter().append("g")
+      .attr("class", "y")
+      .attr("transform", function(d) { return "translate(0," + y(1 - d) + ")"; });
+
+  ytick.append("line")
+      .attr("x1", -6)
+      .style("stroke", "#000");
+
+  ytick.append("text")
+      .attr("x", -8)
+      .attr("text-anchor", "end")
+      .attr("dy", ".35em")
+      .text(p);
+
+
+    function fade(t, a) {
+       $('.grouper').css("opacity", t);
+       $('.'+a).css("opacity", 1);
+    }
+
+  // Add a group for each month.
+  var months = svg.selectAll(".month")
+      .data(months)
+    .enter().append("g")
+      .attr("class", "month")
+      //.attr("xlink:title", function(d) { return d.key; })
+      .attr("transform", function(d) { return "translate(" + x(d.offset / sum) + ")"; });
+
+  // Add a rect for each grouper.
+  var groupers = months.selectAll(".grouper")
+      .data(function(d) { return d.values; })
+    .enter().append("a")
+      //.attr("class", "grouper")
+      .attr("class", function(d) { return "grouper "+d.grouper })
+     // .attr("xlink:title", function(d) { return d.grouper + " " + d.parent.key + ": " + n(d.value); })
+    .append("rect")
+      .attr("y", function(d) { return y(d.offset / d.parent.sum); })
+      .attr("height", function(d) { return y(d.value / d.parent.sum); })
+      .attr("width", function(d) { return x(d.parent.sum / sum); })
+      .attr("fill", function(d) { return color(d.grouper); })
+      .attr("stroke", function(d) { return d3.rgb(color(d.grouper)).darker(); });
+
+    // Draw legend
+    var legend = svg.selectAll(".legend")
+      .data(chartSetting_cols)
+      .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(30," + i * 22 + ")"; });
+     
+    legend.append("rect")
+      .attr("x", width- 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .attr("stroke", function(d, i) { return d3.rgb(color(d)).darker() })
+      .attr("fill", function(d, i) { return color(d) })
+      .attr("rx", 2)
+      .on("mouseover", function(t) { return fade(.1, t) })
+      .on("mouseout", function(t) { return fade(1, t) });
+     
+    legend.append("text")
+      .attr("x", width + 5)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "start")
+      .text(function(d) { return d.replace("_", " ") });
+      
+$('.grouper').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return d.grouper + " " + d.parent.key + ": " + n(d.value);
+        }
+     });
+
+}
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 40,
+            right: 100,
+            bottom: 25,
+            left: 40
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+        columns : ["Referral", "Payments","Adjustments","Write-off"],      
+    }
+    
+}    
+marimekkoChar(config, data);
+
+</script>
+</body>
+</html>

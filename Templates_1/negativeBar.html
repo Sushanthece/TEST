@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.1);
+  shape-rendering: crispEdges;
+}
+
+.axisLine {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: rgba(0, 0, 0, 0.5);
+  stroke-width: 2px;
+}
+
+</style>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+</head>
+<body>
+<div id="chartContainer">
+    <div id="chart1"></div>
+</div>
+
+<script>
+var data = [
+  {
+    "name": "A",
+    "value": -15
+  },
+  {
+    "name": "B",
+    "value": -20
+  },
+  {
+    "name": "C",
+    "value": -22
+  },
+  {
+    "name": "D",
+    "value": -18
+  },
+  {
+    "name": "E",
+    "value": 2
+  },
+  {
+    "name": "F",
+    "value": 6
+  },
+  {
+    "name": "G",
+    "value": 26
+  },
+  {
+    "name": "H",
+    "value": 18
+  }
+];
+
+function negativeBarChart(config, data){
+
+ var elementId = config.chartSetting.elementId;
+
+    var margin = config.chartSetting.margin
+        width = config.chartSetting.width - margin.left - margin.right,
+        height = config.chartSetting.height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;
+
+    var svg = d3.select("#" + elementId).append("svg")
+              .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+             .append("g")
+               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var x = d3.scale.linear()
+    .range([0, width]);
+
+var y = d3.scale.ordinal()
+    .rangeRoundBands([0, height], 0.1);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickSize(6, 0);
+
+
+x.domain(d3.extent(data, function(d) { return d.value; })).nice();
+y.domain(data.map(function(d) { return d.name; }));
+
+svg.selectAll(".bar")
+  .data(data)
+.enter().append("rect")
+  .attr("class", function(d) { return "bar bar--" + (d.value < 0 ? "negative" : "positive"); })
+  .attr("fill", function(d) { return d.value < 0 ? "brown" : "steelblue"; })
+  .attr("stroke", function(d) { return d.value < 0 ? d3.rgb("brown").darker() : d3.rgb("steelblue").darker(); })
+  .attr("x", function(d) { return x(Math.min(0, d.value)); })
+  .attr("y", function (d) { return  y.rangeBand()>35 ?  y(d.name)+((y.rangeBand() -35)/2) :  y(d.name); })
+  .attr("width", function(d) { return Math.abs(x(d.value) - x(0)); })
+  .attr("height", y.rangeBand()>35 ?  35 : y.rangeBand());
+
+
+svg.append("g")
+  .attr("class", "x axis")
+  .attr("transform", "translate(0," + height + ")")
+  .call(xAxis);
+
+var tickNegative = svg.append("g")
+  .attr("class", "y axis")
+  .attr("transform", "translate(" + x(0) + ",0)")
+  .call(yAxis)
+.selectAll(".tick")
+.filter(function(d, i) { return data[i].value < 0; });
+
+tickNegative.select("line")
+  .attr("x2", 6);
+
+tickNegative.select("text")
+  .attr("x", 9)
+  .style("text-anchor", "start");
+
+ $('.bar').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return "Name :"+d.name+'<br/> value:'+d.value;
+        }
+     });   
+}
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 30,
+            right: 30,
+            bottom: 25,
+            left: 30
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+       
+    }
+    
+}    
+negativeBarChart(config, data);
+
+</script>
+</body>
+</html>

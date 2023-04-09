@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>Stacked</title>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<script type="text/javascript" src="js/d3-scale-radial.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+</head>
+<body>
+
+    <div id="chartContainer">
+        <div id="chart1"></div>
+    </div>
+
+<svg width="960" height="960" font-family="sans-serif" font-size="10"></svg>
+
+<script>
+
+var data = [
+  {
+    "month": "Jan",
+    "Referral": 90,
+    "Payments": 60,
+    "Adjustments": 10,
+    "Write-off": 12
+  },
+  {
+    "month": "Feb",
+    "Referral": 80,
+    "Payments": 30,
+    "Adjustments": 20,
+    "Write-off": 14
+  },
+  {
+    "month": "Mar",
+    "Referral": 70,
+    "Payments": 70,
+    "Adjustments": 20,
+    "Write-off": 16
+  },
+  {
+    "month": "Apr",
+    "Referral": 60,
+    "Payments": 80,
+    "Adjustments": 30,
+    "Write-off": 12
+  },
+  {
+    "month": "May",
+    "Referral": 80,
+    "Payments": 20,
+    "Adjustments": 50,
+    "Write-off": 30
+  },
+  {
+    "month": "Jun",
+    "Referral": 90,
+    "Payments": 40,
+    "Adjustments": 60,
+    "Write-off": 22
+  },
+  {
+    "month": "Jul",
+    "Referral": 95,
+    "Payments": 15,
+    "Adjustments": 15,
+    "Write-off": 25
+  }
+]
+
+function radialStackedBar(config, data) {
+
+
+    var elementId = config.chartSetting.elementId;
+
+        var height = config.chartSetting.height
+        var width = config.chartSetting.width
+
+        var margin = config.chartSetting.margin,
+            width = width - margin.left - margin.right,
+            height = height - margin.top - margin.bottom,
+            colorArray = config.chartSetting.colorArray;    
+
+        var columns = config.chartSetting.columns
+
+var innerRadius = 140,
+    outerRadius = Math.min(width, height)/2.12;
+
+var g = d3.select("#" + elementId).append("svg")
+			 .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+				.append("g")
+				.attr("transform", "translate(" + (width+margin.left) / 2 + "," + (height+margin.top)/2 + ")");
+
+      data.forEach(function(d) {
+			for (i = 1, t = 0; i < columns.length; ++i)
+        	t += d[columns[i]] = +d[columns[i]];
+		  d.total = t;
+      });
+
+		var x = d3.scaleBand()
+			.range([0, 2 * Math.PI])
+			.align(0);
+
+var y = d3.scaleRadial()
+    .range([innerRadius, outerRadius]);
+
+var z = d3.scaleOrdinal()
+    .range(colorArray);
+  
+  //data.sort(function(a, b) { return b[data.columns[1]] / b.total - a[data.columns[1]] / a.total; });
+  x.domain(data.map(function(d) { return d.month; }));
+  z.domain(columns);
+
+  g.append("g")
+    .selectAll("g")
+    .data(d3.stack()
+        .keys(columns)
+        .offset(d3.stackOffsetExpand)
+        (data))
+    .enter().append("g")
+      .attr("fill", function(d) { return z(d.key); })
+    .selectAll("path")
+    .data(function(d) { return d; })
+    .enter().append("path")
+      .attr("d", d3.arc()
+          .innerRadius(function(d) { return y(d[0]); })
+          .outerRadius(function(d) { return y(d[1]); })
+          .startAngle(function(d) { return x(d.data.month); })
+          .endAngle(function(d) { return x(d.data.month) + x.bandwidth(); })
+          .padAngle(0.01)
+          .padRadius(innerRadius));
+
+  var label = g.append("g")
+    .selectAll("g")
+    .data(data)
+    .enter().append("g")
+      .attr("text-anchor", "middle")
+      .attr("transform", function(d) { return "rotate(" + ((x(d.month) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")translate(" + innerRadius + ",0)"; });
+
+  label.append("line")
+      .attr("x2", -5)
+      .attr("stroke", "#000");
+
+  label.append("text")
+      .attr("transform", function(d) { return (x(d.month) + x.bandwidth() / 2 + Math.PI / 2) % (2 * Math.PI) < Math.PI ? "rotate(90)translate(0,16)" : "rotate(-90)translate(0,-9)"; })
+      .text(function(d) { return d.month; });
+
+  var yAxis = g.append("g")
+      .attr("text-anchor", "middle");
+
+  var yTick = yAxis
+    .selectAll("g")
+    .data(y.ticks(5).slice(1))
+    .enter().append("g");
+
+  yTick.append("circle")
+      .attr("fill", "none")
+      .attr("stroke", "#000")
+      .attr("r", y);
+
+  yTick.append("text")
+      .attr("y", function(d) { return -y(d); })
+      .attr("dy", "0.35em")
+      .attr("fill", "none")
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 5)
+      .attr("stroke-linejoin", "round")
+      .text(y.tickFormat(5, "%"));
+
+  yTick.append("text")
+      .attr("y", function(d) { return -y(d); })
+      .attr("dy", "0.35em")
+      .text(y.tickFormat(5, "%"));
+
+  var legend = g.append("g")
+    .selectAll("g")
+    .data(columns)
+    .enter().append("g")
+      .attr("transform", function(d, i) { return "translate(-40," + (i - (columns.length - 1) / 2) * 22 + ")"; });
+
+  legend.append("rect")
+  .attr("width", 18)
+  .attr("height", 18)
+  .attr("stroke", function(d, i) { return d3.rgb(z(i)).darker() })
+  .attr("fill", function(d, i) { return z(i) })
+  .attr("rx", 2)  
+
+  legend.append("text")
+      .attr("x", 24)
+      .attr("y", 9)
+      .attr("dy", "0.35em")
+      .text(function(d) { return d; });
+
+}
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 20,
+            right: 20,
+            bottom: 20,
+            left: 20
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+       columns : ["Referral", "Payments","Adjustments","Write-off"],
+       
+    }
+    
+}    
+radialStackedBar(config, data);
+  
+</script>

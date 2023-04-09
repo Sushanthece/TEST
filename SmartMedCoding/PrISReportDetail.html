@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>Smart Med Coding</title>
+
+    <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+    <script type="text/javascript" src="js/d3.v3.min.js"></script>
+    <script type="text/javascript" src="js/jquery.tipsy.js"></script>
+    <script type="text/javascript" src="js/jquery.multiple.select.js"></script>  
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/json2.js"></script>
+    <script type="text/javascript" src="js/jspdf.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/base64js.min.js"></script>
+  
+    <link rel="stylesheet" type="text/css" media="screen" href="css/multiple-select.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/basic.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/feature.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/custom-styles.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/multiple-select.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/jquery-ui.css"/>
+    <link rel="icon" type="image/png" href="images/favicon.ico">
+ 
+<style>
+    .keys,.texts{
+       font-size: 15px!important;
+    }
+
+      .background {
+        fill: #eee;
+      }
+
+      line {
+        stroke: #fff;
+      }
+
+      .day {
+        fill: #fff;
+        stroke: #ccc;
+      }
+
+      .month {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 4px;
+      }
+
+      .year-title {
+        font-size: 20px!important;
+      }
+</style>
+</head>
+<body>
+
+    <div class="container-fluid header-style">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 header-logo">
+                    <p class="heading-part"><a href="."><img src="images/-logo-top.fw.png"></img></a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container-fluid detail_percent_display">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 panel panel-default">
+                    <div class="col-md-12 panel-heading1">
+                        <h2 class="details_constituency">Production Inventory Summary</h2>
+                    </div>
+                    <div class="row">
+                        <div class=" col-md-12 panel-body">
+                            <div class="chart">
+                                <div class="col-md-12 panel-body">
+
+                                    <p class="form-inline header_form">
+                                        <label value="input_date">As on Date : </label>
+                                        <input type="text"  class="asOnDate" id="datepicker" readonly></input>&nbsp;&nbsp;&nbsp;
+                                        <label value="input_date">As on From : </label>
+                                        <select id="last_filter" class="last_filter"></select>
+                                    </p>
+
+                                    <p class="form-inline header_form">
+                                        
+                                        <label value="Groupby">Group by : </label>
+                                        <select id="Groupby" class="select_Groupby"></select>
+
+                                        <label value="Speciality">speciality : </label>
+                                        <select multiple="multiple" id="Speciality" class="Speciality multiple"></select>
+                                        
+                                        <label value="Facility">Facility : </label>
+                                        <select multiple="multiple" id="Facility" class="Facility multiple"></select>
+
+                                        <label value="state">State : </label>
+                                        <select multiple="multiple" id="stateid" class="select_state multiple"></select>
+
+                                        <label value="Chartby">Chart : </label>
+                                        <select id="Chartby" class="select_Chart">
+                                            <option value="multiLine" class="name" selected="">Multi Line Series</option>
+                                            <option value="groupBar" class="name" selected="">Group Bar</option>
+                                            <option value="horizontalGroupBar" class="name" selected="">Horizontal Group Bar</option>
+                                            <option value="groupBarPlusLine" class="name" selected="">Group Bar Plus Line</option>
+                                        </select>
+                                        <input type="button" value="submit" class="Groupby_options btn btn-default"></input>
+                                    </p>
+
+                                    <span class="chart_header"></span>
+                                    <p class="form-inline export_data">
+                                      <button type="button" id="downloadPDF" align="right" value="submit" class="btn btn-info btn-xs">Download as pdf</button>
+                                      <a id="downloadCSV" class="btn btn-info btn-xs">Export as csv</a>
+                                    </p>
+                                    <p class="fill_data" style="font-size: 16px;text-align: center;"></p>
+                                    <div id="chart1" style="height: 460px;" ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid detail_percent_display">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 panel panel-default">
+                    <div class="col-md-12 panel-heading1">
+                        <h2 class="details_constituency">Production Inventory Summary (Day by Day View)</h2>
+                    </div>
+                    <div class="row">
+                        <div class=" col-md-12 panel-body">
+                            <div class="chart">
+                                <div class="col-md-12 panel-body">
+                                    <span class="chart_header"></span>
+                                    <p class="form-inline export_data">
+                                      <button type="button" id="cal_downloadPDF" align="right" value="submit" class="btn btn-info btn-xs">Download as pdf</button>
+                                      
+                                    </p>
+                                    <p class="fill_data" style="font-size: 16px;text-align: center;"></p>
+                                    <div id="calender_chart" style="height: 400px;" ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  <div class="container footer_details" style="text-align:center">
+©All rights reserved. privileged and confidential information.
+</div>
+<script>
+
+var width = 960,
+    height = 400,
+    cellSize = 19; 
+
+    var no_months_in_a_row = Math.floor(width / (cellSize * 7 + 20));
+    var shift_up = cellSize * 3;
+
+    var day = d3.time.format("%w"), 
+        day_of_month = d3.time.format("%e") 
+        day_of_year = d3.time.format("%j")
+        week = d3.time.format("%U"), 
+        month = d3.time.format("%m"),
+        year = d3.time.format("%Y"),
+        percent = d3.format(".2%"),
+        format = d3.time.format("%Y-%m-%d");
+
+    var svg = d3.select("#calender_chart").selectAll("svg")
+        .data(d3.range(2017, 2018).reverse())
+      .enter().append("svg")
+        .attr("viewBox", "0 0 "+width+' '+height)
+        .attr("version", '1.1')
+         .attr("class", 'calender_chart')
+        .append("g")
+         .attr("transform", "translate(20,10)");
+
+    var rect = svg.selectAll(".day")
+        .data(function(d) { return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+      .enter().append("rect")
+        .attr("class", "day")
+        .attr("width", cellSize)
+        .attr("height", cellSize)
+         .attr("fill", '#fff')
+        .attr("stroke", '#ccc')
+        .attr("x", function(d) {
+          var month_padding = 1.2 * cellSize*7 * ((month(d)-1) % (no_months_in_a_row));
+          return day(d) * cellSize + month_padding; 
+        })
+        .attr("y", function(d) { 
+          var week_diff = week(d) - week(new Date(year(d), month(d)-1, 1) );
+          var row_level = Math.ceil(month(d) / (no_months_in_a_row));
+          return (week_diff*cellSize) + row_level*cellSize*8 - cellSize/2 - shift_up;
+        })
+        .datum(format);
+
+    var text = svg.selectAll(".day_text")
+        .data(function(d) { return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+      .enter().append("text")
+        .attr("class", "day_text")
+        .attr("text-anchor", "middle")
+        .attr("x", function(d) {
+          var month_padding = 1.2 * cellSize*7 * ((month(d)-1) % (no_months_in_a_row));
+          return day(d) * cellSize + month_padding+(cellSize/2); })
+        .attr("y", function(d) { 
+          var week_diff = week(d) - week(new Date(year(d), month(d)-1, 1) );
+          var row_level = Math.ceil(month(d) / (no_months_in_a_row));
+          return (week_diff*cellSize) + row_level*cellSize*8 + cellSize/4 - shift_up; })
+        .attr("font-size", "8px")
+        .attr("fill", "#222")
+        .text(function(d) { return d.getDate() })
+        .datum(format);
+
+var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+week_data = d3.time.days(new Date(2015, 0, 1), new Date(2015 + 1, 0, 1))
+
+ var week_text = svg.selectAll(".week_text")
+        .data(week_data.filter(function(d) { return d.getDate()<8 }))
+      .enter().append("text")
+        .attr("class", "week_text")
+        .attr("text-anchor", "middle")
+        .attr("x", function(d) {
+          var month_padding = 1.2 * cellSize*7 * ((month(d)-1) % (no_months_in_a_row));
+          return day(d) * cellSize + month_padding+(cellSize/2); })
+        .attr("y", function(d) { 
+          var row_level = Math.ceil(month(d) / (no_months_in_a_row));
+          return  row_level*cellSize*8 - cellSize*3/4 - shift_up; })
+        .attr("font-size", "8px")
+        .attr("fill", "#222")
+        .text(function(d) { return days[d.getDay()].substring(0,2) });
+
+    var month_titles = svg.selectAll(".month-title")
+          .data(function(d) { 
+            return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+        .enter().append("text")
+          .text(monthTitle)
+          .attr("x", function(d, i) {
+            var month_padding = 1.2 * cellSize*7* ((month(d)-1) % (no_months_in_a_row));
+             return month_padding+(3.5*cellSize); })
+          .attr("y", function(d, i) {
+            var week_diff = week(d) - week(new Date(year(d), month(d)-1, 1) );
+            var row_level = Math.ceil(month(d) / (no_months_in_a_row));
+            return (week_diff*cellSize) + row_level*cellSize*8 - cellSize*1.75 - shift_up; })
+           .attr("font-size", "12px")
+          .attr("class", "month-title")
+          .style("text-anchor", "middle")  
+          .attr("d", monthTitle);
+
+    var year_titles = svg.selectAll(".year-title")  // Jan, Feb, Mar and the whatnot
+          .data(function(d) { 
+            return d3.time.years(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+        .enter().append("text")
+          .text(yearTitle)
+          .attr("x", function(d, i) { return width/2-20 })
+          .attr("y", function(d, i) { return cellSize*5.5 - shift_up; })
+          .attr("class", "year-title")
+          .attr("font-size", "40px")
+          .style("text-anchor", "middle")   
+          .attr("d", yearTitle);
+
+    d3.csv('data/data_detail_intro_fourth.csv', function(error, csv) {
+
+    formatDate = d3.time.format("%d/%m/%Y").parse;
+
+        csv.forEach(function(d) {
+           d['sla'] = 56
+           d['production'] = 43
+           d['Month'] = monthNames[parseInt(d['Placement_Month'])]
+           d['prod_inventory'] = (d['Status']!='pending'? 1 : 0 )
+           d['total_inventory'] = 1
+           d.Date = formatDate(d.Date)
+        });
+
+        csv = csv.filter(function(d) { return d.Date>=new Date(2017,0,1) && d.Date<=new Date() })
+
+          var data = d3.nest()
+            .key(function(d) { return d.sub_Date; })
+            .rollup(function(d) { return  d3.sum(d, function(g) {return g.prod_inventory; })/ d3.sum(d, function(g) {return g.total_inventory; }) })
+            .map(csv);
+        
+        var colors = d3.scale.linear()
+                .range(["#FF0000", '#ffff00','#00ff00'])
+                .domain([0.5,0.9,1])
+
+     
+        rect.filter(function(d) { return d in data; })
+           .style("fill", function(d) { return colors(data[d]); }) 
+           .select("title")
+           .text(function(d) { return d + ": " + percent(data[d]); });
+
+         $('rect').tipsy({ 
+            gravity: 'w', 
+            html: true, 
+            title: function() {
+              var d = this.__data__;console.log(d);
+              return (data[d] !== undefined) ? d+' : '+percent(data[d]) : d+' : '+percent(0); 
+            }
+         });   
+
+         $('.day_text').tipsy({ 
+            gravity: 'w', 
+            html: true, 
+            title: function() {
+              var d = this.__data__; 
+              return (data[d] !== undefined) ? d+' : '+percent(data[d]) : d+' : '+percent(0); 
+            }
+         });   
+
+		 
+    });
+
+    function dayTitle (t0) {
+      return t0.toString().split(" ")[2];
+    }
+
+    function monthTitle (t0) {
+      return t0.toLocaleString("en-us", { month: "long" });
+    }
+    function yearTitle (t0) {
+      return t0.toString().split(" ")[3];
+    }
+
+$("#datepicker").datepicker({ maxDate: new Date() });
+$("#datepicker").datepicker("setDate", new Date());
+ 
+var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December" ];
+
+var stateNames = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','District of Columbia','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Puerto Rico','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming']
+
+var select_box = d3.select('#last_filter')     
+            .selectAll("option")
+                .data(['Week','Month','Quarter','Year'])
+                .enter().append("option")
+                .attr("value", function (d) { return d; })
+                .attr("class","name")
+                .attr("selected","")
+                .text(function (d) { return d.replace("_", " ") });
+
+var select_box = d3.select('#Groupby')     
+            .selectAll("option")
+                .data(['WorkflowDetail','Facility','Client_name'])
+                .enter().append("option")
+                .attr("value", function (d) { return d; })
+                .attr("class","name")
+                .attr("selected","")
+                .text(function (d) { return d.replace("_", " ") });
+
+var select_box = d3.select('#stateid')     
+            .selectAll("option")
+                .data(stateNames)
+                .enter().append("option")
+                .attr("value", function (d) { return d; })
+                .attr("class","name")
+                .attr("selected","")
+                .text(function (d) { return d.replace("_", " ") });
+
+var select_box = d3.select('#Speciality')     
+            .selectAll("option")
+                .data(['OP','Radiology'])
+                .enter().append("option")
+                .attr("value", function (d) { return d; })
+                .attr("class","name")
+                .attr("selected","")
+                .text(function (d) { return d });
+
+var select_box = d3.select('#Facility')     
+            .selectAll("option")
+                .data(['Hospital','Ambulatory Surgical Center','Doctor Office','Urgent Care Clinic','Nursing Home'])
+                .enter().append("option")
+                .attr("value", function (d,i) { return d; })
+                .attr("class","name")
+                .attr("selected","")
+                .text(function (d) { return d });
+
+$("#downloadPDF").click(function() {
+
+    var html = d3.select("svg")
+        .attr("version", 1.1)
+        .attr("xmlns", "http://www.w3.org/2000/svg")
+        .node().parentNode.innerHTML;
+
+    var imgsrc = 'data:image/svg+xml;base64,' + btoa(html);
+    
+    var image = new Image();
+    image.src = imgsrc;
+    image.width = 960;
+    image.height = 500;
+    image.onload = function() {
+        var canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        canvas.style = "border:1px solid #c3c3c3;background-color:#fff";
+     
+        var context = canvas.getContext('2d');
+        context.drawImage(image, 0, 40);
+        var dataURL = canvas.toDataURL();
+        var pdf = new jsPDF('l', 'mm', [297, 210]);
+        pdf.addImage(dataURL, 'JPEG', 22, 37);
+  
+        pdf.text(110, 20, 'Production Inventory Summary');
+        pdf.save($('#Groupby').val() + ".pdf");
+
+    }
+});
+
+$("#cal_downloadPDF").click(function() {
+
+    var html = d3.select(".calender_chart")
+        .attr("version", 1.1)
+        .attr("xmlns", "http://www.w3.org/2000/svg")
+        .node().parentNode.innerHTML;
+
+    var imgsrc = 'data:image/svg+xml;base64,' + btoa(html);
+    
+    var image = new Image();
+    image.src = imgsrc;
+    image.width = 960;
+    image.height = 500;
+    image.onload = function() {
+        var canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        canvas.style = "border:1px solid #c3c3c3;background-color:#fff";
+     
+        var context = canvas.getContext('2d');
+        context.drawImage(image, 0, 40);
+        var dataURL = canvas.toDataURL();
+        var pdf = new jsPDF('l', 'mm', [297, 210]);
+        pdf.addImage(dataURL, 'JPEG', 22, 37);
+  
+        pdf.text(88, 20, 'Production Inventory Summary Overall View');
+        pdf.save("overall_view.pdf");
+
+    }
+});
+
+
+
+function JSONToCSVConvertor(JSONData) {
+
+    //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
+    var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
+    var CSV = '';    
+    //This condition will generate the Label/Header
+
+    var row = "";
+
+    //This loop will extract the label from 1st index of on array
+    for (var index in arrData[0]) {
+        //Now convert each value to string and comma-seprated
+        row += index + ',';
+    }
+    row = row.slice(0, -1);
+    //append Label row with line break
+    CSV += row + '\r\n';
+
+
+    //1st loop is to extract each row
+    for (var i = 0; i < arrData.length; i++) {
+        var row = "";
+        //2nd loop will extract each column and convert it in string comma-seprated
+        for (var index in arrData[i]) {
+            row += '"' + arrData[i][index] + '",';
+        }
+        row.slice(0, row.length - 1);
+        //add a line break after each row
+        CSV += row + '\r\n';
+    }
+
+    if (CSV == '') {
+        alert("Invalid data");
+        return;
+    }
+
+    var csv = CSV;  
+    blob = new Blob([csv], { type: 'text/csv' }); 
+    var csvUrl = window.URL.createObjectURL(blob);
+    var filename = $('#Groupby').val()+'.csv';
+
+    $("#downloadCSV").attr({'download': filename,'href': csvUrl});
+
+}
+
+function addThousandsSeparator(input) {
+    var output = input
+    if (parseFloat(input)) {
+    input = new String(input); 
+    var parts = input.split("."); 
+    parts[0] = parts[0].split("").reverse().join("").replace(/(\d{3})(?!$)/g, "$1,").split("").reverse().join("");
+    output = parts.join(".");
+    }
+    return output;
+}
+
+$(".multiple").multipleSelect({ placeholder: "Here is the placeholder" });
+
+function multiLine(config, data, variable) {
+
+    var elementId = config.chartSetting.elementId;
+    var variables = config.chartSetting.variable;
+
+    var chartSetting_cols = config.chartSetting.columns;
+
+    var height = config.chartSetting.height
+    var width = config.chartSetting.width
+
+    var margin = config.chartSetting.margin,
+        width = width - margin.left - margin.right,
+        height = height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;
+
+    d3.select('#'+elementId).select('svg').remove();
+     
+    var svg = d3.select("#" + elementId).append("svg")
+         .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var xScale = d3.scale.ordinal()
+            .rangeRoundBands([0, width], .1);
+            
+    var yScale = d3.scale.linear()
+            .domain([0, 10])
+            .range([height, 0]);
+            
+    var color = d3.scale.ordinal()
+            .range(colorArray);
+            
+    var xAxis = d3.svg.axis().
+            scale(xScale)
+            .orient("bottom")
+            .ticks(7);
+            
+    var yAxis = d3.svg.axis()
+            .scale(yScale)
+            .orient("left")
+            .ticks(5)
+            .tickFormat(d3.format(".2s"));
+
+    color.domain(chartSetting_cols);
+
+    var data2 = data;
+    var categories = color.domain().map(function(name) {
+        return {
+            name: name,
+            values: data.map(function(d) {
+                if (d[name] == 0) {
+                    d[name] = 0.1;
+                }
+                return {
+                    variable: d[variable],
+                    rating: +(d[name]),
+                    visible: (true),
+                    name: name,
+                };
+            }),
+            visible: (true)
+        };
+    });
+
+    xScale.domain(data.map(function(d) {
+        return d[variable];
+    }));
+
+    category_max = d3.max(categories, function(c) {
+        return d3.max(c.values, function(v) {
+            return v.rating;
+        });
+    })
+
+    yScale.domain([0, category_max ]);
+
+    xaxis_legends =  svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (height) + ")")
+        .call(xAxis);
+
+    xaxis_legends.selectAll("text")
+                .attr("y", 14)
+                .attr("x", 0)
+                .attr("dy", ".35em")
+                .style("text-anchor", "middle")
+                .attr("font-size", xScale.rangeBand()>12? '12px' :xScale.rangeBand()+'px')
+                .text(function(d) { return d.length>Math.floor(xScale.rangeBand()/7)? d.substring(0,Math.floor(xScale.rangeBand()/7))+'..' : d })
+
+    xaxis_legends.append("text")
+               .attr("class", "value")
+              .attr("transform", "translate("+ (width) +",0)")
+              .attr("dy", ".71em")
+              .attr("y", -12)
+              .style("text-anchor", "end")
+                .text($('#Groupby').val().replace("_", " "));
+
+    svg.append("g")
+        .attr("class", "y axis noSelect")
+        .call(yAxis).append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Inv. Volume");
+
+    var line = d3.svg.line()
+        .x(function(d) { return xScale(d.variable); })
+        .y(function(d) { return yScale(d.rating); })
+        .defined(function(d) { return d.rating; });
+
+    var issue = svg.selectAll(".issue")
+            .data(categories)
+            .enter().append("g")
+            .attr("class", "issue");
+
+    issue.append("path")
+    .attr("class", "line")
+    .style("pointer-events", "none")
+    .attr("stroke-width", 2)
+    .attr("transform", "translate("+((xScale.rangeBand()/2))+", 0)")
+    .attr("id", function(d) { return "line-" + d.name.replace(" ", "").replace("/", ""); })
+    .attr("d", function(d) {
+        if (d.values.rating == 0) {
+            d.values.rating = 0.1;
+        };
+        return d.visible ? line(d.values) : null;
+    }).attr("clip-path", "url(#clip)").style("stroke", function(d) { return color(d.name); });
+
+    // what to do when we mouse over a bubble
+    var mouseOn = function() { 
+        var circle = d3.select(this);
+      
+    // transition to increase size/opacity of bubble
+        circle.transition()
+        .duration(800).style("opacity", 1)
+        .attr("r", 12).ease("elastic");
+
+        // append lines to bubbles that will be used to show the precise data points.
+        // translate their location based on margins
+        svg.append("g")
+            .attr("class", "guide")
+        .append("line")
+            .attr('stroke-width','1')
+            .attr("x1", circle.attr("cx"))
+            .attr("x2", circle.attr("cx"))
+            .attr("y1", circle.attr("cy"))
+            .attr("y2", height)
+            .style("stroke", circle.style("fill"))
+            .transition().delay(200).duration(400).styleTween("opacity", 
+                        function() { return d3.interpolate(0, 1); })
+
+        svg.append("g")
+            .attr("class", "guide")
+        .append("line")
+            .attr('stroke-width','1')
+            .attr("x1", circle.attr("cx"))
+            .attr("x2", 0)
+            .attr("y1", circle.attr("cy"))
+            .attr("y2", circle.attr("cy"))
+            .style("stroke", circle.style("fill"))
+            .transition().delay(200).duration(400).styleTween("opacity", 
+                        function() { return d3.interpolate(0, 1); });
+
+    // function to move mouseover item to front of SVG stage, in case
+    // another bubble overlaps it
+        d3.selection.prototype.moveToFront = function() { 
+          return this.each(function() { 
+            this.parentNode.appendChild(this); 
+          });
+        };
+    };
+    // what happens when we leave a bubble?
+    var mouseOff = function() {
+        var circle = d3.select(this);
+
+        // go back to original size and opacity
+        circle.transition()
+        .duration(800).style("opacity", 1)
+        .attr("r", 6).ease("elastic");
+
+        // fade out guide lines, then remove them
+        d3.selectAll(".guide").transition().duration(100).styleTween("opacity", 
+                        function() { return d3.interpolate(1, 0); })
+            .remove()
+    };
+
+  function fade(t, a) {
+        issue.filter(function(r) {
+            return r.name.replace(" ", "_").replace(" ", "_") != a
+        }).style("opacity", t)
+    }
+
+    issue.selectAll("circle")
+            .data(function(d) { return d.values })
+            .enter().append("circle")
+            .attr("r", function(d) { return d.visible ? 6 : 0; })
+            .attr("cx", function(d) { return xScale(d.variable)+(xScale.rangeBand()/2); })
+            .attr("cy", function(d) { return yScale(d.rating); })
+            .style("fill", function(d) { return color(d.name);})
+            .attr("stroke", function(d, i) { return d3.rgb(color(d.name)).darker() })
+            .on("mouseover", mouseOn)
+            .on("mouseout", mouseOff);
+
+    $('circle').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return variable.replace("_", " ")+' : '+d.variable+' <br/>'+d.name.replace("_", " ")+' : '+addThousandsSeparator(d.rating)
+        }
+     });
+
+        // Draw legend
+        var legend = svg.selectAll(".legend")
+          .data(chartSetting_cols)
+          .enter().append("g")
+          .attr("class", "legend")
+          .attr("transform", function(d, i) { return "translate(30," + i * 22 + ")"; });
+         
+        legend.append("rect")
+          .attr("x", width - 3)
+          .attr("width", 18)
+          .attr("height", 18)
+          .attr("stroke", function(d, i) { return d3.rgb(color(d)).darker() })
+          .attr("fill", function(d, i) { return color(d) })
+          .attr("rx", 2)
+          .on("mouseover", function(t) { return fade(.1, t.replace(" ", "_").replace(" ", "_")) })
+          .on("mouseout", function(t) { return fade(1, t.replace(" ", "_").replace(" ", "_")) });
+         
+        legend.append("text")
+          .attr("x", width +20)
+          .attr("y", 9)
+          .attr("dy", ".35em")
+          .style("text-anchor", "start")
+          .text(function(d) { return d.length>18? d.substring(0,16).replace("_", " ")+'..' : d.replace("_", " ") });
+
+    $('.axis path,.axis line,.axis1 path,.axis1 line').css({'fill' : 'none','stroke' : '#000','shape-rendering' : 'crispEdges'}); 
+    $('.line').css({'fill' : 'none'}); 
+    $('text').css({'font' : '11px sans-serif'}); 
+
+    }
+
+function horizontalGroupBar(config, data,variable) {
+
+    var elementId = config.chartSetting.elementId;
+    var variables = config.chartSetting.variable;
+
+    var height = config.chartSetting.height
+    var width = config.chartSetting.width
+
+    var margin = config.chartSetting.margin,
+        width = width - margin.left - margin.right,
+        height = height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;    
+
+    var chartSetting_cols = config.chartSetting.columns;
+
+    d3.select('#'+elementId).select('svg').remove();
+
+var svg = d3.select("#" + elementId).append("svg")
+             .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var layers = d3.layout.stack()(chartSetting_cols.map(function(period,index) {
+        return data.map(function(d) {
+          return {x: d[variable], y: parseFloat(d[period]), value: parseFloat(d[period]),name: period, sub_group : index};
+        
+        });
+    }));
+
+    var yGroupMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y; }); });
+    
+    var y = d3.scale.ordinal()
+        .domain(layers[0].map(function(d) { return d.x; }))
+        .rangeRoundBands([0, height], .1);
+    
+    var y1 = d3.scale.ordinal();
+        y1.domain(chartSetting_cols).rangeRoundBands([0, y.rangeBand()]);
+
+    var x = d3.scale.linear()
+        .domain([0, yGroupMax])
+        .range([0, width]);
+
+    var color = d3.scale.ordinal()
+        .range(colorArray);
+    
+        color.domain(chartSetting_cols);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom")
+        .ticks(7)        
+        .tickFormat(d3.format(".2s"));
+        
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left"); 
+
+    var layer = svg.selectAll(".layer")
+        .data(layers)
+        .enter().append("g")
+        .attr("class", "layer");
+        
+    var rect = layer.selectAll("rect")
+        .data(function(d) { return  d; })
+        .enter().append("rect")
+        .attr("class","group_bar")
+        .attr("y", function(d) { return y(d.x)+(d.sub_group*y.rangeBand()/chartSetting_cols.length); })
+        .attr("height", (y.rangeBand()/(chartSetting_cols.length))-2)
+        .attr("x", 0)
+        .attr("width", function(d) { return x(d.y); })
+        .style("fill", function(d) { return color(d.name); })
+        .style("stroke", function(d) { return d3.rgb(color(d.name)).darker(); })
+        .attr("data-title",function(d) { return d.x+','+d.name+' '+d.value })
+    
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis).append("text")
+      .attr("transform", "translate("+ (width) +",0)")
+      .attr("y", -12)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Inv. Volume");
+          
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis).selectAll("text")
+            .attr("y", 14)
+            .attr("x", 0)
+            .attr("dy", ".35em")
+            .attr("transform", "rotate(90)")
+            .style("text-anchor", "middle")
+            .attr("font-size", y.rangeBand()>12? '12px' :y.rangeBand()+'px')                       
+            .text(function(d) { return d.length>Math.floor(y.rangeBand()/7)? d.substring(0,Math.floor(y.rangeBand()/7))+'..' : d });
+     
+    function fade(opacity,name) {
+          rect
+            .filter(function(d) { return d.name.replace(" ", "_").replace(" ", "_") != name; })
+            .style("opacity", opacity);
+    }
+
+  var legend = svg.selectAll(".legend")
+        .data(chartSetting_cols)
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(30," + i * 22 + ")"; });
+ 
+    legend.append("rect")
+      .attr("x", width - 3)
+      .attr("width", 18)
+      .attr("height", 18)
+      .attr("stroke", function(d, i) { return d3.rgb(color(d)).darker() })
+      .attr("fill", function(d, i) { return color(d) })
+      .attr("rx", 2)  
+      .on("mouseover", function(t) { return fade(.1, t.replace(" ", "_").replace(" ", "_")) })
+      .on("mouseout", function(t) { return fade(1, t.replace(" ", "_").replace(" ", "_")) });
+     
+    legend.append("text")
+      .attr("x", width +20)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "start")
+      .text(function(d) { return d.length>18? d.substring(0,16).replace("_", " ")+'..' : d.replace("_", " ") });
+  
+$('.group_bar').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return variable.replace("_", " ")+' : '+d.x+' <br/>'+d.name.replace("_", " ")+' : '+addThousandsSeparator(d.value)
+        }
+     });
+
+$('.axis path,.axis line,.axis1 path,.axis1 line').css({'fill' : 'none','stroke' : '#000','shape-rendering' : 'crispEdges'}); 
+$('text').css({'font' : '11px sans-serif'}); 
+ 
+}
+
+function groupBar(config, data,variable) {
+
+    var elementId = config.chartSetting.elementId;
+    var variables = config.chartSetting.variable;
+
+    var height = config.chartSetting.height
+    var width = config.chartSetting.width
+
+    var margin = config.chartSetting.margin,
+        width = width - margin.left - margin.right,
+        height = height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;    
+
+    var chartSetting_cols = config.chartSetting.columns;
+
+var x0 = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var x1 = d3.scale.ordinal();
+
+var y = d3.scale.linear()
+    .rangeRound([height, 0]);
+
+var color = d3.scale.ordinal()
+    .range(colorArray);
+
+var xAxis = d3.svg.axis()
+    .scale(x0)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(d3.format(".2s"));
+
+d3.select('#'+elementId).select('svg').remove();
+
+var svg = d3.select("#" + elementId).append("svg")
+     .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    color.domain(chartSetting_cols);
+
+    data.forEach(function(d) {
+    var y0 = 0;
+    d.groups = color.domain().map(function(name) { return {name: name, value:+d[name],groupby:d[variable]}; });
+    });
+
+    x0.domain(data.map(function(d) { return d[variable]; }));
+    x1.domain(chartSetting_cols).rangeRoundBands([0, x0.rangeBand()]);
+    y.domain([0, d3.max(data, function(d) { return d3.max(d.groups, function(d) { return d.value; }); })]);
+    
+    xaxis_legends =  svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (height) + ")")
+        .call(xAxis);
+
+    xaxis_legends.selectAll("text")
+                .attr("y", 14)
+                .attr("x", 0)
+                .attr("dy", ".35em")
+                .style("text-anchor", "middle")
+                .attr("font-size", x0.rangeBand()>12? '12px' :x0.rangeBand()+'px')
+                .text(function(d) { return d.length>Math.floor(x0.rangeBand()/7)? d.substring(0,Math.floor(x0.rangeBand()/7))+'..' : d })
+
+    xaxis_legends.append("text")
+               .attr("class", "value")
+              .attr("transform", "translate("+ (width) +",0)")
+              .attr("x", 8)
+              .attr("y", 5)
+              .style("text-anchor", "start")
+                .text($('#Groupby').val().replace("_", " "));
+
+    svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis).append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Inv. Volume");
+
+    var state = svg.selectAll(".state")
+    .data(data)
+    .enter().append("g")
+    .attr("class", "g")
+    .attr("transform", function(d) { return "translate(" + x0(d[variable]) + ",0)"; });
+
+    function fade(t, a) {
+       $('.group_bar').css("opacity", t);
+       $('.'+a).css("opacity", 1);
+    }
+
+    state.selectAll("rect")
+        .data(function(d) { return d.groups; })
+        .enter().append("rect")
+        .attr("class", "group_bar")
+        .attr("class", function(d) { return "group_bar "+d.name.replace(" ", "_").replace(" ", "_") })
+        .attr("width", x1.rangeBand()-1)
+        .attr("x", function(d) { return x1(d.name); })
+        .attr("y", function(d) { return y(d.value); })
+        .attr("data-title",function(d) { return d.groupby+','+d.name+' '+d.value })
+        .attr("height", function(d) { return height - y(d.value); })
+        .attr("fill", function(d) { return color(d.name); })
+        .attr("stroke", function(d) { return d3.rgb(color(d.name)).darker(); });
+
+  var legend = svg.selectAll(".legend")
+        .data(chartSetting_cols)
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(30," + i * 22 + ")"; });
+ 
+    legend.append("rect")
+      .attr("x", width - 3)
+      .attr("width", 18)
+      .attr("height", 18)
+      .attr("stroke", function(d, i) { return d3.rgb(color(d)).darker() })
+      .attr("fill", function(d, i) { return color(d) })
+      .attr("rx", 2)  
+      .on("mouseover", function(t) { return fade(.1, t.replace(" ", "_").replace(" ", "_")) })
+      .on("mouseout", function(t) { return fade(1, t.replace(" ", "_").replace(" ", "_")) });
+     
+    legend.append("text")
+      .attr("x", width +20)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "start")
+      .text(function(d) { return d.length>18? d.substring(0,16).replace("_", " ")+'..' : d.replace("_", " ") });
+  
+$('.group_bar').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return variable.replace("_", " ")+' : '+d.groupby+' <br/>'+d.name.replace("_", " ")+' : '+addThousandsSeparator(d.value)
+        }
+     });
+
+$('.axis path,.axis line,.axis1 path,.axis1 line').css({'fill' : 'none','stroke' : '#000','shape-rendering' : 'crispEdges'}); 
+$('text').css({'font' : '11px sans-serif'}); 
+   
+}
+
+function groupBarPlusLine(config, data,variable) {
+
+    var elementId = config.chartSetting.elementId;
+    var variables = config.chartSetting.variable;
+
+    var height = config.chartSetting.height
+    var width = config.chartSetting.width
+
+    var line_data = config.chartSetting.line;
+
+    var margin = config.chartSetting.margin,
+        width = width - margin.left - margin.right,
+        height = height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;    
+
+    var chartSetting_cols = config.chartSetting.columns;
+
+var x0 = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var x1 = d3.scale.ordinal();
+
+var y = d3.scale.linear()
+    .rangeRound([height, 0]);
+
+var y1 = d3.scale.linear()
+     .range([height, 0]);
+
+var color = d3.scale.ordinal()
+    .range(colorArray);
+
+var xAxis = d3.svg.axis()
+    .scale(x0)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(d3.format(".2s"));
+
+var y1Axis = d3.svg.axis()
+        .scale(y1)
+        .orient("right")
+        .ticks(5);
+
+d3.select('#'+elementId).select('svg').remove();
+
+var svg = d3.select("#" + elementId).append("svg")
+     .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    color.domain(chartSetting_cols);
+
+    data.forEach(function(d) {
+    var y0 = 0;
+    d.groups = color.domain().map(function(name) { return {name: name, value:+d[name],groupby:d[variable]}; });
+    });
+ 
+    x0.domain(data.map(function(d) { return d[variable]; }));
+    x1.domain(chartSetting_cols).rangeRoundBands([0, x0.rangeBand()]);
+    y.domain([0, d3.max(data, function(d) { return d3.max(d.groups, function(d) { return d.value; }); })]);
+    y1.domain([0, d3.max(data, function(d) { return d[line_data]; })]).nice();
+  
+// Define the line
+var valueline = d3.svg.line()
+    .x(function(d) { return x0(d[variable]); })
+    .y(function(d) { return y1(d[line_data]); })
+    .defined(function(d) { return d[line_data]; });
+
+  xaxis_legends =  svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + (height) + ")")
+    .call(xAxis);
+
+xaxis_legends.selectAll("text")
+            .attr("y", 14)
+            .attr("x", 0)
+            .attr("dy", ".35em")
+            .style("text-anchor", "middle")
+            .attr("font-size", x0.rangeBand()>12? '12px' :x0.rangeBand()+'px')
+            .text(function(d) { return d.length>Math.floor(x0.rangeBand()/7)? d.substring(0,Math.floor(x0.rangeBand()/7))+'..' : d })
+
+xaxis_legends.append("text")
+           .attr("class", "value")
+          .attr("transform", "translate("+ (width) +",0)")
+          .attr("x", 16)
+          .attr("y", 5)
+          .style("text-anchor", "start")
+            .text($('#Groupby').val().replace("_", " "));
+
+    svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis).append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Inv. Volume");
+
+
+  // Add the Y Axis
+    svg.append("g")
+        .attr("class", "axis axis--y1")
+        .attr("transform", "translate(" + width + ",0)")
+         .call(y1Axis)
+         .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -15)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("sla");
+
+    var state = svg.selectAll(".state")
+    .data(data)
+    .enter().append("g")
+    .attr("class", "g")
+    .attr("transform", function(d) { return "translate(" + x0(d[variable]) + ",0)"; });
+
+    function fade(t, a) {
+       $('.group_bar').css("opacity", t);
+       $('.'+a).css("opacity", 1);
+    }
+
+    state.selectAll("rect")
+        .data(function(d) { return d.groups; })
+        .enter().append("rect")
+        .attr("class", "group_bar")
+        .attr("class", function(d) { return "group_bar "+d.name.replace(" ", "_").replace(" ", "_") })
+        .attr("width", x1.rangeBand())
+        .attr("x", function(d) { return x1(d.name); })
+        .attr("y", function(d) { return y(d.value); })
+        .attr("data-title",function(d) { return d.groupby+','+d.name+' '+d.value })
+        .attr("height", function(d) { return height - y(d.value); })
+        .attr("fill", function(d) { return color(d.name); })
+        .attr("stroke", function(d) { return d3.rgb(color(d.name)).darker(); });
+
+     // Add the valueline path.
+    svg.append("path")
+        .attr("class", "line")
+        .attr("transform", "translate("+ x0.rangeBand()/2+",0)")
+        .attr("d", valueline(data))
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 2)
+        .attr("fill", 'none');
+
+    // what to do when we mouse over a bubble
+    var mouseOn = function() { 
+        var circle = d3.select(this);
+      
+    // transition to increase size/opacity of bubble
+        circle.transition()
+        .duration(800).style("opacity", 1)
+        .attr("r", 12).ease("elastic");
+
+        // append lines to bubbles that will be used to show the precise data points.
+        // translate their location based on margins
+        svg.append("g")
+            .attr("class", "guide")
+        .append("line")
+            .attr('stroke-width','1')
+            .attr("x1", parseFloat(circle.attr("cx"))+(x0.rangeBand()/2))
+            .attr("x2", parseFloat(circle.attr("cx"))+(x0.rangeBand()/2))
+            .attr("y1", circle.attr("cy"))
+            .attr("y2", height)
+            .style("stroke", circle.style("fill"))
+            .transition().delay(200).duration(400).styleTween("opacity", 
+                        function() { return d3.interpolate(0, 1); })
+
+        svg.append("g")
+            .attr("class", "guide")
+        .append("line")
+            .attr('stroke-width','1')
+            .attr("x1", parseFloat(circle.attr("cx"))+(x0.rangeBand()/2))
+            .attr("x2", width)
+            .attr("y1", circle.attr("cy"))
+            .attr("y2", circle.attr("cy"))
+            .style("stroke", circle.style("fill"))
+            .transition().delay(200).duration(400).styleTween("opacity", 
+                        function() { return d3.interpolate(0, 1); });
+
+    // function to move mouseover item to front of SVG stage, in case
+    // another bubble overlaps it
+        d3.selection.prototype.moveToFront = function() { 
+          return this.each(function() { 
+            this.parentNode.appendChild(this); 
+          });
+        };
+    };
+    // what happens when we leave a bubble?
+    var mouseOff = function() {
+        var circle = d3.select(this);
+
+        // go back to original size and opacity
+        circle.transition()
+        .duration(800).style("opacity", 1)
+        .attr("r", 6).ease("elastic");
+
+        // fade out guide lines, then remove them
+        d3.selectAll(".guide").transition().duration(100).styleTween("opacity", 
+                        function() { return d3.interpolate(1, 0); })
+            .remove()
+    };
+
+    var circles = svg.selectAll(".circle")
+                .data(data)
+                .enter()
+                .append("g")
+                .append("circle")
+                .attr("class",'circle')
+                .attr("r",6)
+                .attr("transform", "translate("+ x0.rangeBand()/2+",0)")
+                .attr("cx", function(d) { return x0(d[variable]); })
+                .attr("cy", function(d) { return y1(d[line_data]); })
+                .attr("fill",d3.rgb('steelblue').brighter() )
+                .attr("stroke",'steelblue')
+                .on("mouseover", mouseOn)
+                .on("mouseout", mouseOff);
+
+  var legend = svg.selectAll(".legend")
+        .data(chartSetting_cols)
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(30," + i * 22 + ")"; });
+ 
+    legend.append("rect")
+      .attr("x", width - 3)
+      .attr("width", 18)
+      .attr("height", 18)
+      .attr("stroke", function(d, i) { return d3.rgb(color(d)).darker() })
+      .attr("fill", function(d, i) { return color(d) })
+      .attr("rx", 2)  
+      .on("mouseover", function(t) { return fade(.1, t.replace(" ", "_").replace(" ", "_")) })
+      .on("mouseout", function(t) { return fade(1, t.replace(" ", "_").replace(" ", "_")) });
+     
+    legend.append("text")
+      .attr("x", width +20)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "start")
+     .text(function(d) { return d.length>18? d.substring(0,16).replace("_", " ")+'..' : d.replace("_", " ") });
+
+$('.group_bar').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return variable.replace("_", " ")+' : '+d.groupby+' <br/>'+d.name.replace("_", " ")+' : '+addThousandsSeparator(d.value)
+        }
+     });
+
+$('circle').tipsy({ 
+        gravity: 'e', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return variable.replace("_", " ")+" : "+d[variable]+'<br/> '+line_data+' : '+d[line_data].toFixed(2);
+        }
+     }); 
+ 
+$('.axis path,.axis line,.axis1 path,.axis1 line').css({'fill' : 'none','stroke' : '#000','shape-rendering' : 'crispEdges'}); 
+$('text').css({'font' : '11px sans-serif'}); 
+
+}
+
+ $('.Groupby_options').on('click', function() {
+d3.select('svg').remove();
+d3.csv('data/data_detail_intro_fourth.csv',function (data) {
+
+    formatDate = d3.time.format("%m/%d/%Y").parse;
+    formatDateVal = d3.time.format("%m/%d/%Y").parse;
+    formatVal = d3.time.format("%b %d %Y").parse;
+
+    data.forEach(function(d) {
+       d['sla'] = 56
+       d['production'] = 43
+       d['prod_inventory'] = (d['Status']!='pending'? 1 : 0 )
+       d['total_inventory'] = 1
+       d['Placement_Month'] = parseInt(d['Placement_Month'])  
+       d['Month'] = monthNames[d['Placement_Month']]   
+       d.Date = formatDate(d.Date)
+    });
+
+     old_date = formatDateVal($('.asOnDate').val())
+     start_date = formatDateVal($('.asOnDate').val())
+
+
+    if ($('#last_filter').val()=='Year'){
+       old_date.setDate(old_date.getDate()-365)
+    }else if ($('#last_filter').val()=='Month'){
+       old_date.setDate(old_date.getDate()-30)
+    }else if ($('#last_filter').val()=='Quarter'){
+       old_date.setDate(old_date.getDate()-92)
+    }else if ($('#last_filter').val()=='Week'){
+       old_date.setDate(old_date.getDate()-7)
+    }
+
+
+    data = data.filter(function(d) { return (d.Date>old_date && d.Date<start_date) })
+
+    var Speciality = [];
+      $('#Speciality :selected').each(function(i, selected){
+          Speciality[i] = $(selected).val();
+      });
+
+    var Facility = [];
+        $('#Facility :selected').each(function(i, selected){
+            Facility[i] = $(selected).val();
+        });
+
+    var stateby = [];
+        $('#stateid :selected').each(function(i, selected){
+            stateby[i] = $(selected).val();
+        });
+  
+    var data_Facility = []
+                    _.each(data, function(d) { if(_.contains(Facility, d.Facility)) { data_Facility.push(d);}});
+
+    var data_Speciality = []
+                    _.each(data_Facility, function(d) { if(_.contains(Speciality, d.Speciality)) { data_Speciality.push(d);}});
+
+   // var data_stateby = []
+     //               _.each(data_Speciality, function(d) { if(_.contains(stateby, d.State)) { data_stateby.push(d);}});
+
+    data_stateby = data_Speciality.sort(function(x, y){ return d3.ascending(x[$('#Groupby').val()], y[$('#Groupby').val()]); })
+
+
+var data_sets = d3.nest()
+      .key(function(d) { return d[$('#Groupby').val()] })
+      .rollup(function(d) { 
+       return { 'total_inventory' : d3.sum(d, function(g) {return g.total_inventory; }),'prod_inventory': d3.sum(d, function(g) {return g.prod_inventory; }),'sla' : d3.mean(d, function(g) {return g['sla']; })  };
+      }).entries(data_stateby);
+
+   group_data = []
+    data_sets.forEach(function(g) {
+       g.values[$('#Groupby').val()] = g.key
+       group_data.push(g.values)       
+       
+    });
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 460,
+        margin : { 
+            top: 15,
+            right: 125,
+            bottom: 25,
+            left: 50
+        },
+       colorArray : ['#8dd3c7','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#bc80bd'],
+       columns : ['prod_inventory','total_inventory'],
+       variable : $('#Groupby').val(),
+       line :'sla'
+    }
+}
+
+    $('.fill_data').text('Below chart is from '+old_date.toString().split(' ').slice(1,4).join(' ')+' to  '+formatDate($('.asOnDate').val()).toString().split(' ').slice(1,4).join(' '))
+
+    JSONToCSVConvertor(JSON.stringify(group_data));
+
+    if ($('#Chartby').val()=='multiLine'){
+        multiLine(config,group_data,$('#Groupby').val());
+    }else if ($('#Chartby').val()=='groupBar'){
+        groupBar(config,group_data,$('#Groupby').val());
+    }else if ($('#Chartby').val()=='horizontalGroupBar'){
+        horizontalGroupBar(config,group_data,$('#Groupby').val());
+    }else{
+        groupBarPlusLine(config,group_data,$('#Groupby').val());
+    }
+
+});
+
+});
+
+d3.csv('data/data_detail_intro_fourth.csv',function (data) {
+
+    formatDate = d3.time.format("%m/%d/%Y").parse;
+    formatDateVal = d3.time.format("%m/%d/%Y").parse;
+    formatVal = d3.time.format("%b %d %Y").parse;
+
+    data.forEach(function(d) {
+       d['sla'] = 56
+       d['production'] = 43
+       d['Month'] = monthNames[parseInt(d['Placement_Month'])]
+       d['prod_inventory'] = (d['Status']!='pending'? 1 : 0 )
+       d['total_inventory'] = 1
+       d.Date = formatDate(d.Date)
+    });
+
+    old_date = formatDateVal($('.asOnDate').val())
+    old_date.setDate(old_date.getDate()-365)
+
+    data = data.filter(function(d) { return d.Date>old_date })
+  
+  var data_sets = d3.nest()
+      .key(function(d) { return d[$('#Groupby').val()] })
+      .rollup(function(d) { 
+       return { 'total_inventory' : d3.sum(d, function(g) {return g.total_inventory; }),'prod_inventory': d3.sum(d, function(g) {return g.prod_inventory; }),'sla' : d3.mean(d, function(g) {return g['sla']; })  };
+      }).entries(data);
+
+   group_data = []
+    data_sets.forEach(function(g) {
+       g.values[$('#Groupby').val()] = g.key
+       group_data.push(g.values)
+    });
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 460,
+        margin : { 
+            top: 15,
+            right: 150,
+            bottom: 25,
+            left: 50
+        },
+       colorArray : ['#8dd3c7','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#bc80bd'],
+       columns : ['prod_inventory','total_inventory'],
+       variable : $('#Groupby').val(),
+       line :'sla'
+    }
+}
+
+    $('.fill_data').text('Below chart is from '+old_date.toString().split(' ').slice(1,4).join(' ')+' to  '+formatDate($('.asOnDate').val()).toString().split(' ').slice(1,4).join(' '))
+
+    JSONToCSVConvertor(JSON.stringify(group_data));
+    groupBarPlusLine(config,group_data,$('#Groupby').val());
+
+});
+
+</script>
+</body>
+</html>

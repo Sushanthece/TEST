@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+#chartContainer{
+    border: azure;
+    height: 300px;
+    background: white;
+}
+
+</style>
+</head>
+<body>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+
+    <div id="chartContainer">
+            <div id="chart1"></div>
+    </div>
+<script>
+
+var data = [
+  {
+    "month": "Jan",
+    "Referral": 90,
+    "Payments": 60,
+    "Adjustments": 10,
+    "Write-off": 12
+  },
+  {
+    "month": "Feb",
+    "Referral": 80,
+    "Payments": 30,
+    "Adjustments": 20,
+    "Write-off": 14
+  },
+  {
+    "month": "Mar",
+    "Referral": 70,
+    "Payments": 70,
+    "Adjustments": 20,
+    "Write-off": 16
+  },
+  {
+    "month": "Apr",
+    "Referral": 60,
+    "Payments": 80,
+    "Adjustments": 30,
+    "Write-off": 12
+  },
+  {
+    "month": "May",
+    "Referral": 80,
+    "Payments": 20,
+    "Adjustments": 50,
+    "Write-off": 30
+  },
+  {
+    "month": "Jun",
+    "Referral": 90,
+    "Payments": 40,
+    "Adjustments": 60,
+    "Write-off": 22
+  },
+  {
+    "month": "Jul",
+    "Referral": 95,
+    "Payments": 15,
+    "Adjustments": 15,
+    "Write-off": 25
+  }
+]
+
+
+function horizontalGroupBar(config, data) {
+
+    var elementId = config.chartSetting.elementId;
+
+    var height = config.chartSetting.height
+    var width = config.chartSetting.width
+
+    var variable = config.chartSetting.variable;
+   
+    var margin = config.chartSetting.margin,
+        width = width - margin.left - margin.right,
+        height = height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;    
+
+    var chartSetting_cols = config.chartSetting.columns;
+
+var svg = d3.select("#" + elementId).append("svg")
+             .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var layers = d3.layout.stack()(chartSetting_cols.map(function(period,index) {
+        return data.map(function(d) {
+          return {x: d[variable], y: parseFloat(d[period]), value: parseFloat(d[period]),name: period, sub_group : index};
+        
+        });
+    }));
+
+    var yGroupMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y; }); });
+    
+    var yScale = d3.scale.ordinal()
+        .domain(layers[0].map(function(d) { return d.x; }))
+        .rangeRoundBands([25, height], .2);
+
+    var x = d3.scale.linear()
+        .domain([0, yGroupMax])
+        .range([0, width]);
+
+    var color = d3.scale.ordinal()
+        .range(colorArray);
+    
+        color.domain(chartSetting_cols);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom")        
+        .tickPadding(12);
+        
+    var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .tickSize(0)
+        .tickPadding(6)
+        .orient("left");
+
+    var layer = svg.selectAll(".layer")
+        .data(layers)
+        .enter().append("g")
+        .attr("class", "layer");
+        
+        d3.selectAll(".tick > text")
+            .style("font-size", "12px")    
+  
+    var rect = layer.selectAll("rect")
+        .data(function(d) { return  d; })
+        .enter().append("rect")
+        .attr("class","group_bar")
+        .attr("y", function(d) { return yScale(d.x)+(d.sub_group*yScale.rangeBand()/chartSetting_cols.length); })
+        .attr("height", (yScale.rangeBand()/(chartSetting_cols.length+1)))
+        .attr("x", 0)
+        .attr("width", function(d) { return x(d.y); })
+        .style("fill", function(d) { return color(d.name); })
+        .style("stroke", function(d) { return d3.rgb(color(d.name)).darker(); })
+        .attr("data-title",function(d) { return d.x+','+d.name+' '+d.value })
+    
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+        .selectAll("text").style("text-anchor", "middle")
+            .attr("dx", "-.18em")
+            .attr("dy", ".15em");
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(0,0)")
+        .call(yAxis);
+    
+    function fade(opacity,name) {
+          rect
+            .filter(function(d) { return d.name != name; })
+            .style("opacity", opacity);
+    }     
+
+  var legend = svg.selectAll(".legend")
+        .data(chartSetting_cols)
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(30," + i * 22 + ")"; });
+ 
+    legend.append("rect")
+      .attr("x", width- 28)
+      .attr("width", 18)
+      .attr("height", 18)
+      .attr("stroke", function(d, i) { return d3.rgb(color(i)).darker() })
+      .attr("fill", function(d, i) { return color(i) })
+      .attr("rx", 2)  
+      .on("mouseover", function(t) { return fade(.1, t) })
+      .on("mouseout", function(t) { return fade(1, t) });
+     
+    legend.append("text")
+      .attr("x", width - 5)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "start")
+      .text(function(d) { return d });
+  
+$('.group_bar').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return "type :"+d.name+' <br/> '+variable+' :'+d.x+' <br/> '+d.value+'%'
+        }
+     });
+
+}
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 10,
+            right: 100,
+            bottom: 25,
+            left: 40
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+        columns : ["Referral", "Payments","Adjustments","Write-off"],
+        variable : 'month'
+    }
+} 
+   
+horizontalGroupBar(config, data);
+    
+</script>
+</body>
+    
+

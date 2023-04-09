@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<style>
+    text {
+        font: 12px sans-serif;
+    }
+    path.slice{
+    stroke-width:2px;
+}
+
+polyline{
+    opacity: .3;
+    stroke: black;
+    stroke-width: 2px;
+    fill: none;
+}
+</style>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+</head>
+<body>
+
+<div id="chartContainer">
+    <div id="chart1"></div>
+</div>
+    <script>
+        
+var data = [
+  {
+    "month": "Jan",
+    "Referral": 90,
+    "Payments": 60,
+    "Adjustments": 10,
+    "Write-off": 12
+  },
+  {
+    "month": "Feb",
+    "Referral": 80,
+    "Payments": 30,
+    "Adjustments": 20,
+    "Write-off": 14
+  },
+  {
+    "month": "Mar",
+    "Referral": 70,
+    "Payments": 70,
+    "Adjustments": 20,
+    "Write-off": 16
+  },
+  {
+    "month": "Apr",
+    "Referral": 60,
+    "Payments": 80,
+    "Adjustments": 30,
+    "Write-off": 12
+  },
+  {
+    "month": "May",
+    "Referral": 80,
+    "Payments": 20,
+    "Adjustments": 50,
+    "Write-off": 30
+  },
+  {
+    "month": "Jun",
+    "Referral": 90,
+    "Payments": 40,
+    "Adjustments": 60,
+    "Write-off": 22
+  },
+  {
+    "month": "Jul",
+    "Referral": 95,
+    "Payments": 15,
+    "Adjustments": 15,
+    "Write-off": 25
+  }
+]
+
+function donutChar(config, data) {
+
+ var elementId = config.chartSetting.elementId;
+
+    var margin = config.chartSetting.margin
+        width = config.chartSetting.width - margin.left - margin.right,
+        height = config.chartSetting.height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;
+
+        var svg = d3.select("#" + elementId).append("svg")
+                  .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+                  .append("g")
+                  .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        var radius = 200;
+        var colours = d3.scale.category20();
+
+        var arc = d3.svg.arc()
+                .outerRadius(radius*.8)
+                .innerRadius(radius*.2);
+
+        var outerArc = d3.svg.arc()
+                .innerRadius(radius*.9)
+                .outerRadius(radius*.9);
+
+        var pie = d3.layout.pie()
+                .sort(null)
+                .value(function(d){ return d.Referral; });
+
+        var g = svg.selectAll(".fan")
+                .data(pie(data))
+                .enter()
+                .append("g")
+                .attr("class", "fan")
+
+        g.append("path")
+            .attr("d", arc)
+            .attr("fill", function(d){ return colours(d.data.month); })
+            .attr("stroke", function(d){ return d3.rgb(colours(d.data.month)).darker(); });
+        
+        g.append("text")
+            .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+            .style("text-anchor", "middle")
+            .text(function(d) { return d.data.legend; });
+
+                /* ------- TEXT LABELS -------*/
+
+            svg.append("g")
+                .attr("class", "labels");
+            svg.append("g")
+                .attr("class", "lines");
+        
+               var key = function(d){ return d.data.month; };
+
+                var text = svg.select(".labels").selectAll("text")
+                    .data(pie(data), key);
+
+                text.enter()
+                    .append("text")
+                    .attr("dy", ".35em")
+                    .text(function(d) { 
+                        return d.data.month;
+                    });
+                
+                function midAngle(d){
+                    return d.startAngle + (d.endAngle - d.startAngle)/2;
+                }
+
+                text.transition().duration(1000)
+                    .attrTween("transform", function(d) {
+                        this._current = this._current || d;
+                        var interpolate = d3.interpolate(this._current, d);
+                        this._current = interpolate(0);
+                        return function(t) {
+                            var d2 = interpolate(t);
+                            var pos = outerArc.centroid(d2);
+                            pos[0] = radius * (midAngle(d2) < Math.PI ? 1 : -1);
+                            return "translate("+ pos +")";
+                        };
+                    })
+                    .styleTween("text-anchor", function(d){
+                        this._current = this._current || d;
+                        var interpolate = d3.interpolate(this._current, d);
+                        this._current = interpolate(0);
+                        return function(t) {
+                            var d2 = interpolate(t);
+                            return midAngle(d2) < Math.PI ? "start":"end";
+                        };
+                    });
+
+                text.exit()
+                    .remove();
+
+                /* ------- SLICE TO TEXT POLYLINES -------*/
+
+                var polyline = svg.select(".lines").selectAll("polyline")
+                    .data(pie(data), key);
+                
+                polyline.enter()
+                    .append("polyline");
+
+                polyline.transition().duration(1000)
+                    .attrTween("points", function(d){
+                        this._current = this._current || d;
+                        var interpolate = d3.interpolate(this._current, d);
+                        this._current = interpolate(0);
+                        return function(t) {
+                            var d2 = interpolate(t);
+                            var pos = outerArc.centroid(d2);
+                            pos[0] = radius * 0.95 * (midAngle(d2) < Math.PI ? 1 : -1);
+                            return [arc.centroid(d2), outerArc.centroid(d2), pos];
+                        };
+                    });
+                
+                polyline.exit()
+                    .remove();
+
+$('path').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__; 
+          return (d.data.month)+"<br/> Referral : "+(d.data.Referral)+"%";
+        }
+     });
+
+
+}
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+       
+    }
+    
+}    
+donutChar(config, data);
+
+    </script>
+</body>
+</html>

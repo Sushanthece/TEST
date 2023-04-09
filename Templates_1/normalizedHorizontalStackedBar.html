@@ -1,0 +1,250 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+      .axis path, .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+      }
+      .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+      }
+      
+    </style>
+  </head>  
+<body>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+    <div id="chartContainer">
+        <div id="chart1"></div>
+    </div>
+<script>
+    
+    var data = [
+      {
+        "month": "Jan",
+        "Referral": 90,
+        "Payments": 60,
+        "Adjustments": 10,
+        "Write-off": 12
+      },
+      {
+        "month": "Feb",
+        "Referral": 80,
+        "Payments": 30,
+        "Adjustments": 20,
+        "Write-off": 14
+      },
+      {
+        "month": "Mar",
+        "Referral": 70,
+        "Payments": 70,
+        "Adjustments": 20,
+        "Write-off": 16
+      },
+      {
+        "month": "Apr",
+        "Referral": 60,
+        "Payments": 80,
+        "Adjustments": 30,
+        "Write-off": 12
+      },
+      {
+        "month": "May",
+        "Referral": 80,
+        "Payments": 20,
+        "Adjustments": 50,
+        "Write-off": 30
+      },
+      {
+        "month": "Jun",
+        "Referral": 90,
+        "Payments": 40,
+        "Adjustments": 60,
+        "Write-off": 22
+      },
+      {
+        "month": "Jul",
+        "Referral": 95,
+        "Payments": 15,
+        "Adjustments": 15,
+        "Write-off": 25
+      }
+    ];
+
+function normalizedHorizontalStackedBarChar(config, data) {
+
+    var elementId = config.chartSetting.elementId;
+
+        var height = config.chartSetting.height
+        var width = config.chartSetting.width
+
+        var margin = config.chartSetting.margin,
+                width = width - margin.left - margin.right,
+                height = height - margin.top - margin.bottom,
+                colorArray = config.chartSetting.colorArray;
+
+    var chartSetting_cols = config.chartSetting.columns;
+
+    data.forEach(function(d) {
+        d.total = 0
+        chartSetting_cols.forEach(function(c) {
+               d.total = d.total+d[c]
+        })
+        chartSetting_cols.forEach(function(c) {
+               d[c+'_'] = (d[c]/d.total)
+        })
+        
+    });
+
+    var dataset = d3.layout.stack()(chartSetting_cols.map(function(r) {
+      return data.map(function(d) {
+        return {x: d.month, y: +d[r+'_'], name : r , value : d[r]};
+        });
+    }));
+     
+      var stack = d3.layout.stack();
+      stack(dataset);
+ 
+      var dataset = dataset.map(function (group) {
+        return group.map(function (d) {
+          return {
+            x: d.y,
+            y: d.x,
+            x0: d.y0,
+            name:d.name,
+            value :d.value
+          };
+        });
+      });
+ 
+      var yValues = dataset[0].map(function (d) {
+        return d.y;
+      });
+ 
+      var xMax = d3.max(dataset, function (group) {
+        return d3.max(group, function (d) {
+          return d.x + d.x0;
+        });
+      });
+
+      var svg, xScale, yScale, rects;
+       
+      var svg = d3.select("#" + elementId).append("svg")
+                 .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+               .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        xScale = d3.scale.linear()
+        .domain([0, xMax])
+        .range([0, width]);
+       
+        yScale = d3.scale.ordinal()
+            .domain(yValues)
+            .rangeRoundBands([0, height], .1);
+        
+        var xAxis = d3.svg.axis()
+            .scale(xScale)
+            .orient('bottom');
+            
+        var yAxis = d3.svg.axis()
+            .scale(yScale)
+            .orient('left');
+            
+        var colours = d3.scale.ordinal().range(colorArray);
+
+        var barHeight = yScale.rangeBand()>35 ?  35 : yScale.rangeBand()
+              
+      function fade(t, a) {
+            rects.filter(function(r) {
+                return r.name != a
+            }).style("opacity", t)
+        }
+    
+        var groups = svg.selectAll('g')
+            .data(dataset)
+            .enter()
+            .append('g')
+            .style('fill', function (d, i) { return colours(i); });
+
+        rects = groups.selectAll('rect')
+            .data(function (d) { return d; })
+            .enter()
+            .append('rect')
+            .attr("class", "layer_rect")
+            .attr('x', function (d) { return xScale(d.x0); })
+            .attr('y', function (d, i) { return yScale.rangeBand()>35 ?  yScale(d.y)+((yScale.rangeBand() -35)/2) :  yScale(d.y); })
+            .attr('height', function (d) {  return barHeight; })
+            .attr('width', function (d) { return xScale(d.x);  });
+
+        svg.append('g')
+        .attr('class', 'axis')
+        .attr('transform', 'translate(0,' + height + ')')
+        .call(xAxis);
+ 
+        svg.append('g')
+        .attr('class', 'axis')
+        .call(yAxis);
+
+// Draw legend
+var legend = svg.selectAll(".legend")
+  .data(chartSetting_cols)
+  .enter().append("g")
+  .attr("class", "legend")
+  .attr("transform", function(d, i) { return "translate(30," + i * 22 + ")"; });
+ 
+legend.append("rect")
+  .attr("x", width- 18)
+  .attr("width", 18)
+  .attr("height", 18)
+  .attr("stroke", function(d, i) { return d3.rgb(colours(d)).darker() })
+  .attr("fill", function(d, i) { return colours(d) })
+  .attr("rx", 2)
+  .on("mouseover", function(t) { return fade(.1, t) })
+  .on("mouseout", function(t) { return fade(1, t) });
+ 
+legend.append("text")
+  .attr("x", width + 5)
+  .attr("y", 9)
+  .attr("dy", ".35em")
+  .style("text-anchor", "start")
+  .text(function(d) { return d });
+
+  
+ $('.layer_rect').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return "type :"+d.name+' <br/> Month :'+d.y+' <br/> '+d.value+'%'
+        }
+     });
+
+  }
+ 
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 40,
+            right: 120,
+            bottom: 25,
+            left: 50
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],  
+       columns : ["Referral", "Payments","Adjustments","Write-off"],
+    }
+}    
+normalizedHorizontalStackedBarChar(config, data);
+  
+    </script>
+  </body>
+</html>

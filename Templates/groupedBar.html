@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<style>
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+#chartContainer{
+    border: azure;
+    height: 300px;
+    background: white;
+}
+
+</style>
+</head>
+<body>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+
+    <div id="chartContainer">
+            <div id="chart1"></div>
+    </div>
+<script>
+
+var data_set = [
+  {
+    "month": "Jan",
+    "Referral": 90,
+    "Payments": 60,
+    "Adjustments": 10,
+    "Write-off": 12
+  },
+  {
+    "month": "Feb",
+    "Referral": 80,
+    "Payments": 30,
+    "Adjustments": 20,
+    "Write-off": 14
+  },
+  {
+    "month": "Mar",
+    "Referral": 70,
+    "Payments": 70,
+    "Adjustments": 20,
+    "Write-off": 16
+  },
+  {
+    "month": "Apr",
+    "Referral": 60,
+    "Payments": 80,
+    "Adjustments": 30,
+    "Write-off": 12
+  },
+  {
+    "month": "May",
+    "Referral": 80,
+    "Payments": 20,
+    "Adjustments": 50,
+    "Write-off": 30
+  },
+  {
+    "month": "Jun",
+    "Referral": 90,
+    "Payments": 40,
+    "Adjustments": 60,
+    "Write-off": 22
+  },
+  {
+    "month": "Jul",
+    "Referral": 95,
+    "Payments": 15,
+    "Adjustments": 15,
+    "Write-off": 25
+  }
+]
+
+
+function groupBar(config, data) {
+
+    var elementId = config.chartSetting.elementId;
+
+    var height = config.chartSetting.height
+    var width = config.chartSetting.width
+
+    var variable = config.chartSetting.variable;
+   
+    var margin = config.chartSetting.margin,
+        width = width - margin.left - margin.right,
+        height = height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;    
+
+    var chartSetting_cols = config.chartSetting.columns;
+
+var x0 = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var x1 = d3.scale.ordinal();
+
+var y = d3.scale.linear()
+    .rangeRound([height, 0]);
+
+var color = d3.scale.ordinal()
+    .range(colorArray);
+
+var xAxis = d3.svg.axis()
+    .scale(x0)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(d3.format(".2s"));
+
+var svg = d3.select("#" + elementId).append("svg")
+     .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+    //.attr("width",width + margin.left + margin.right)
+    //.attr("height",height + margin.top + margin.bottom)
+   .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    color.domain(chartSetting_cols);
+
+    data.forEach(function(d) {
+    var y0 = 0;
+    d.groups = color.domain().map(function(name) { return {name: name, value:+d[name],groupby:d[variable]}; });
+    });
+ 
+    x0.domain(data.map(function(d) { return d[variable]; }));
+    x1.domain(chartSetting_cols).rangeRoundBands([0, x0.rangeBand()]);
+    y.domain([0, d3.max(data, function(d) { return d3.max(d.groups, function(d) { return d.value; }); })]);
+
+  svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + (height) + ")")
+    .call(xAxis);
+
+    svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+
+    var state = svg.selectAll(".state")
+    .data(data)
+    .enter().append("g")
+    .attr("class", "g")
+    .attr("transform", function(d) { return "translate(" + x0(d[variable]) + ",0)"; });
+
+    function fade(t, a) {
+       $('.group_bar').css("opacity", t);
+       $('.'+a).css("opacity", 1);
+    }
+
+    state.selectAll("rect")
+        .data(function(d) { return d.groups; })
+        .enter().append("rect")
+        .attr("class", "group_bar")
+        .attr("class", function(d) { return "group_bar "+d.name })
+        .attr("width", x1.rangeBand()-1)
+        .attr("x", function(d) { return x1(d.name); })
+        .attr("y", function(d) { return y(d.value); })
+        .attr("data-title",function(d) { return d.groupby+','+d.name+' '+d.value })
+        .attr("height", function(d) { return height - y(d.value); })
+        .attr("fill", function(d) { return color(d.name); })
+        .attr("stroke", function(d) { return d3.rgb(color(d.name)).darker(); });
+
+
+  var legend = svg.selectAll(".legend")
+        .data(chartSetting_cols)
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(30," + i * 22 + ")"; });
+ 
+    legend.append("rect")
+      .attr("x", width- 28)
+      .attr("width", 18)
+      .attr("height", 18)
+      .attr("stroke", function(d, i) { return d3.rgb(color(i)).darker() })
+      .attr("fill", function(d, i) { return color(i) })
+      .attr("rx", 2)  
+      .on("mouseover", function(t) { return fade(.1, t) })
+      .on("mouseout", function(t) { return fade(1, t) });
+     
+    legend.append("text")
+      .attr("x", width - 5)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "start")
+      .text(function(d) { return d });
+  
+$('.group_bar').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return "type :"+d.name+' <br/> '+variable+' :'+d.groupby+' <br/> '+d.value+'%'
+        }
+     });
+
+}
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 10,
+            right: 100,
+            bottom: 25,
+            left: 50
+        },
+        colorArray : ['#e31a1c','#fdbf6f','#ff7f00','#cab2d6'],
+        columns : ["Referral", "Payments","Adjustments","Write-off"],
+        variable : 'month'
+    }
+} 
+   
+groupBar(config, data_set);
+    
+    
+</script>
+</body>

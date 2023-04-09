@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.1);
+  shape-rendering: crispEdges;
+    stroke-width: 2px;
+}
+
+.axisLine {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: rgba(0, 0, 0, 0.5);
+  stroke-width: 2px;
+}
+
+</style>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+</head>
+<body>
+<div id="chartContainer">
+    <div id="chart1"></div>
+</div>
+<script>
+var data = [
+  {
+    "date": "20101001",
+    "high": 59.5,
+    "low": 57
+  },
+  {
+    "date": "20101002",
+    "high": 59.5,
+    "low": 53.4
+  },
+  {
+    "date": "20101003",
+    "high": 59,
+    "low": 53.4
+  },
+  {
+    "date": "20101004",
+    "high": 59.4,
+    "low": 54.7
+  },
+  {
+    "date": "20101005",
+    "high": 58.3,
+    "low": 52.7
+  },
+  {
+    "date": "20101006",
+    "high": 62.1,
+    "low": 54.5
+  },
+  {
+    "date": "20101007",
+    "high": 60.8,
+    "low": 53.4
+  },
+  {
+    "date": "20101008",
+    "high": 61,
+    "low": 52.5
+  },
+  {
+    "date": "20101009",
+    "high": 62.4,
+    "low": 52.9
+  },
+  {
+    "date": "20101010",
+    "high": 65.3,
+    "low": 54
+  },
+  {
+    "date": "20101011",
+    "high": 70.3,
+    "low": 55
+  },
+  {
+    "date": "20101012",
+    "high": 82.2,
+    "low": 58.6
+  },
+  {
+    "date": "20101013",
+    "high": 75.6,
+    "low": 57.4
+  },
+  {
+    "date": "20101014",
+    "high": 75.7,
+    "low": 57.7
+  },
+  {
+    "date": "20101015",
+    "high": 68.4,
+    "low": 54.7
+  },
+  {
+    "date": "20101016",
+    "high": 56.3,
+    "low": 52.7
+  },
+  {
+    "date": "20101017",
+    "high": 54.3,
+    "low": 51.8
+  },
+  {
+    "date": "20101018",
+    "high": 54.9,
+    "low": 51.4
+  },
+  {
+    "date": "20101019",
+    "high": 54.7,
+    "low": 50.2
+  },
+  {
+    "date": "20101020",
+    "high": 56.5,
+    "low": 50
+  },
+  {
+    "date": "20101021",
+    "high": 62.6,
+    "low": 55.4
+  },
+  {
+    "date": "20101022",
+    "high": 59.9,
+    "low": 53.8
+  },
+  {
+    "date": "20101023",
+    "high": 62.2,
+    "low": 52.2
+  },
+  {
+    "date": "20101024",
+    "high": 63,
+    "low": 57.9
+  },
+  {
+    "date": "20101025",
+    "high": 58.5,
+    "low": 54.3
+  },
+  {
+    "date": "20101026",
+    "high": 59.5,
+    "low": 51.3
+  },
+  {
+    "date": "20101027",
+    "high": 59.4,
+    "low": 49.8
+  },
+  {
+    "date": "20101028",
+    "high": 66.6,
+    "low": 55.8
+  },
+  {
+    "date": "20101029",
+    "high": 64.9,
+    "low": 53.2
+  },
+  {
+    "date": "20101030",
+    "high": 59.9,
+    "low": 52.3
+  },
+  {
+    "date": "20101031",
+    "high": 60.4,
+    "low": 53.2
+  },
+  {
+    "date": "20101101",
+    "high": 64.4,
+    "low": 54.1
+  },
+  {
+    "date": "20101102",
+    "high": 66.6,
+    "low": 54.7
+  },
+  {
+    "date": "20101103",
+    "high": 67.8,
+    "low": 57.2
+  },
+  {
+    "date": "20101104",
+    "high": 73.2,
+    "low": 62.4
+  },
+  {
+    "date": "20101105",
+    "high": 72.1,
+    "low": 54.1
+  },
+  {
+    "date": "20101106",
+    "high": 59,
+    "low": 53.2
+  },
+  {
+    "date": "20101107",
+    "high": 59.2,
+    "low": 56.1
+  },
+  {
+    "date": "20101108",
+    "high": 57.4,
+    "low": 53.2
+  },
+  {
+    "date": "20101109",
+    "high": 56.8,
+    "low": 47.1
+  },
+  {
+    "date": "20101110",
+    "high": 59.4,
+    "low": 53.1
+  },
+  {
+    "date": "20101111",
+    "high": 61.2,
+    "low": 51.8
+  },
+  {
+    "date": "20101112",
+    "high": 59.2,
+    "low": 49.6
+  },
+  {
+    "date": "20101113",
+    "high": 63.1,
+    "low": 50.7
+  },
+  {
+    "date": "20101114",
+    "high": 72.1,
+    "low": 57
+  },
+  {
+    "date": "20101115",
+    "high": 75.4,
+    "low": 62.4
+  },
+  {
+    "date": "20101116",
+    "high": 65.5,
+    "low": 55.8
+  },
+  {
+    "date": "20101117",
+    "high": 60.1,
+    "low": 52.5
+  },
+  {
+    "date": "20101118",
+    "high": 55,
+    "low": 48.2
+  },
+  {
+    "date": "20101119",
+    "high": 55,
+    "low": 48.9
+  },
+  {
+    "date": "20101120",
+    "high": 54.3,
+    "low": 44.8
+  },
+  {
+    "date": "20101121",
+    "high": 54.1,
+    "low": 47.8
+  },
+  {
+    "date": "20101122",
+    "high": 54.5,
+    "low": 48.2
+  },
+  {
+    "date": "20101123",
+    "high": 53.4,
+    "low": 50.2
+  },
+  {
+    "date": "20101124",
+    "high": 49.6,
+    "low": 42.3
+  },
+  {
+    "date": "20101125",
+    "high": 49.8,
+    "low": 43
+  },
+  {
+    "date": "20101126",
+    "high": 50.9,
+    "low": 44.4
+  },
+  {
+    "date": "20101127",
+    "high": 52.5,
+    "low": 47.7
+  },
+  {
+    "date": "20101128",
+    "high": 50.5,
+    "low": 44.6
+  },
+  {
+    "date": "20101129",
+    "high": 51.3,
+    "low": 41.9
+  },
+  {
+    "date": "20101130",
+    "high": 51.8,
+    "low": 44.2
+  },
+  {
+    "date": "20101201",
+    "high": 52.2,
+    "low": 45.3
+  },
+  {
+    "date": "20101202",
+    "high": 53.4,
+    "low": 49.3
+  },
+  {
+    "date": "20101203",
+    "high": 53.2,
+    "low": 49.1
+  },
+  {
+    "date": "20101204",
+    "high": 55.2,
+    "low": 50.4
+  },
+  {
+    "date": "20101205",
+    "high": 56.3,
+    "low": 52.3
+  },
+  {
+    "date": "20101206",
+    "high": 59.5,
+    "low": 54.1
+  },
+  {
+    "date": "20101207",
+    "high": 57.2,
+    "low": 49.5
+  },
+  {
+    "date": "20101208",
+    "high": 54.5,
+    "low": 50.5
+  },
+  {
+    "date": "20101209",
+    "high": 56.5,
+    "low": 52.9
+  },
+  {
+    "date": "20101210",
+    "high": 57.9,
+    "low": 53.4
+  },
+  {
+    "date": "20101211",
+    "high": 56.1,
+    "low": 54.1
+  },
+  {
+    "date": "20101212",
+    "high": 55.6,
+    "low": 51.6
+  },
+  {
+    "date": "20101213",
+    "high": 55.8,
+    "low": 53.8
+  },
+  {
+    "date": "20101214",
+    "high": 57.4,
+    "low": 53.4
+  },
+  {
+    "date": "20101215",
+    "high": 52.9,
+    "low": 47.3
+  },
+  {
+    "date": "20101216",
+    "high": 52.2,
+    "low": 43.2
+  }
+];
+
+
+function biverateAreaChar(config, data){
+
+ var elementId = config.chartSetting.elementId;
+
+    var margin = config.chartSetting.margin
+        width = config.chartSetting.width - margin.left - margin.right,
+        height = config.chartSetting.height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;
+
+    var svg = d3.select("#" + elementId).append("svg")
+              .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+             .append("g")
+               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+var parseDate = d3.time.format("%Y%m%d").parse;
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+var area = d3.svg.area()
+    .x(function(d) { return x(d.date); })
+    .y0(function(d) { return y(d.low); })
+    .y1(function(d) { return y(d.high); });
+
+
+  data.forEach(function(d) {
+    d.date = parseDate(d.date);
+  });
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  y.domain([d3.min(data, function(d) { return d.low; }), d3.max(data, function(d) { return d.high; })]);
+
+  svg.append("path")
+      .datum(data)
+      .attr("class", "area")
+      .attr("fill", '#4682b4')
+      .attr("stroke", d3.rgb('#4682b4').darker())
+      .attr("d", area);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("values");
+
+}
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 30,
+            right: 20,
+            bottom: 25,
+            left: 40
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+       
+    }
+    
+}    
+biverateAreaChar(config, data);
+  
+</script>

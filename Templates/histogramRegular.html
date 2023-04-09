@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.1);
+  shape-rendering: crispEdges;
+}
+
+.axisLine {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: rgba(0, 0, 0, 0.5);
+  stroke-width: 2px;
+}
+
+line.bin {
+  stroke: #000;
+  stroke-width: 3px;
+}
+
+</style>
+<script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipsy.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/tipsy.css">
+</head>
+<body>
+<div id="chartContainer">
+    <div id="chart1"></div>
+</div>
+
+<script>
+data = [
+  {
+    "Income": 0,
+    "People": 245981
+  },
+  {
+    "Income": 8.8,
+    "People": 150444
+  },
+  {
+    "Income": 30,
+    "People": 126063
+  },
+  {
+    "Income": 49.9,
+    "People": 123519
+  },
+  {
+    "Income": 70,
+    "People": 115029
+  },
+  {
+    "Income": 90.7,
+    "People": 277149
+  },
+  {
+    "Income": 109.1,
+    "People": 355768
+  },
+  {
+    "Income": 130,
+    "People": 324246
+  },
+  {
+    "Income": 150.3,
+    "People": 353239
+  },
+  {
+    "Income": 170.2,
+    "People": 396008
+  },
+  {
+    "Income": 190,
+    "People": 396725
+  },
+  {
+    "Income": 210,
+    "People": 398640
+  },
+  {
+    "Income": 230.1,
+    "People": 401932
+  },
+  {
+    "Income": 250,
+    "People": 416079
+  },
+  {
+    "Income": 270,
+    "People": 412727
+  },
+  {
+    "Income": 289.8,
+    "People": 385192
+  },
+  {
+    "Income": 309.7,
+    "People": 343178
+  },
+  {
+    "Income": 329.7,
+    "People": 293707
+  },
+  {
+    "Income": 349.6,
+    "People": 239982
+  },
+  {
+    "Income": 369.7,
+    "People": 201557
+  },
+  {
+    "Income": 389.3,
+    "People": 165132
+  },
+  {
+    "Income": 442.3,
+    "People": 442075
+  },
+  {
+    "Income": 543.4,
+    "People": 196526
+  }
+];
+
+function histogramChar(config, data) {
+
+ var elementId = config.chartSetting.elementId;
+
+    var margin = config.chartSetting.margin
+        width = config.chartSetting.width - margin.left - margin.right,
+        height = config.chartSetting.height - margin.top - margin.bottom,
+        colorArray = config.chartSetting.colorArray;
+
+    var svg = d3.select("#" + elementId).append("svg")
+              .attr("viewBox", "0 0 "+(width + margin.left + margin.right)+' '+(height + margin.top + margin.bottom))
+             .append("g")
+               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var x = d3.scale.linear()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+  // Coerce types.
+  data.forEach(function(bin) {
+    bin.Income = +bin.Income;
+    bin.People = +bin.People;
+  });
+  
+  // Set the scale domains.
+  x.domain([0, d3.max(data.map(function(d) { return d.Income; }))]).nice();
+  y.domain([0, d3.max(data.map(function(d) { return d.People; }))]).nice();
+
+  // Add the data.
+  svg.selectAll(".bin")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", "bin")
+      .attr("x", function(d) { return x(d.Income); })
+      .attr("width", width/(data.length*3))
+      .attr("y", function(d) { return  height - y(d.People) ; })
+      .attr("height", function(d) { return y(d.People); })
+      .attr("fill", 'steelblue')
+      .attr("stroke", d3.rgb('steelblue').darker());
+  
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.svg.axis()
+      .scale(x)
+      .orient("bottom").ticks(5));
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(d3.svg.axis()
+      .scale(y)
+      .orient("left").ticks(5).tickFormat(d3.format(".2s")));
+
+  function addThousandsSeparator(t){
+          var a=t;if(parseFloat(t)){t=new String(t);var e=t.split(".");e[0]=e[0].split("").reverse().join("").replace(/(\d{3})(?!$)/g,"$1,").split("").reverse().join(""),a=e.join(".")}
+           return a
+      }
+  
+$('.bin').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          console.log(d);  
+          return "Income :"+d.Income+' <br/>People :'+addThousandsSeparator(d.People);
+        }
+     });  
+
+}
+
+var config = {
+    chartSetting : {
+        elementId : "chart1",
+        adaptive: "true",
+        width : 960,
+        height : 425,
+        margin : { 
+            top: 40,
+            right: 40,
+            bottom: 25,
+            left: 40
+        },
+        colorArray : ["#69d900", "#00a3d9", "#00d3a9", "#ffd24d"],
+       
+    }
+    
+}    
+histogramChar(config, data);
+
+</script>
+</body>
+</html>
+
+</script>
